@@ -12,7 +12,7 @@ import {
 } from '../data/mockData';
 
 export default function Home() {
-  const { activeReports } = useReports();
+  const { activeReports, archive } = useReports();
 
   return (
     <>
@@ -22,7 +22,7 @@ export default function Home() {
         <div className="reports-section">
           {activeReports.length > 0 ? (
             activeReports.map((report, i) => (
-              <ReportCard key={report.title + i} report={report} />
+              <ReportCard key={report.title + i} report={report} onArchive={archive} />
             ))
           ) : (
             <div className="empty-reports">

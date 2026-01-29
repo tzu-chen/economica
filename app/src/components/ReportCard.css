@@ -90,6 +90,40 @@
   color: var(--accent-green);
 }
 
+.report-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.report-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.report-action-archive:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: rgba(255, 149, 0, 0.3);
+  color: var(--accent-orange);
+}
+
+.report-action-delete:hover {
+  background: rgba(255, 68, 102, 0.1);
+  border-color: rgba(255, 68, 102, 0.3);
+  color: var(--accent-red);
+}
+
 .report-chart {
   width: 180px;
   height: 100px;

@@ -41,6 +41,14 @@ export function ReportsProvider({ children }) {
     });
   }, []);
 
+  const remove = useCallback((id) => {
+    setReports((prev) => {
+      const next = prev.filter((r) => r.id !== id);
+      persist(next);
+      return next;
+    });
+  }, []);
+
   const getReport = useCallback(
     (id) => reports.find((r) => r.id === id) || null,
     [reports],
@@ -51,7 +59,7 @@ export function ReportsProvider({ children }) {
 
   return (
     <ReportsContext.Provider
-      value={{ reports, activeReports, archivedReports, publish, update, archive, getReport }}
+      value={{ reports, activeReports, archivedReports, publish, update, archive, remove, getReport }}
     >
       {children}
     </ReportsContext.Provider>

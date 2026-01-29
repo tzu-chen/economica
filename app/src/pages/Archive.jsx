@@ -5,7 +5,7 @@ import ReportCard from '../components/ReportCard';
 import './Archive.css';
 
 export default function Archive() {
-  const { archivedReports } = useReports();
+  const { archivedReports, remove } = useReports();
 
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -161,7 +161,7 @@ export default function Archive() {
           {filtered.length > 0 ? (
             <div className="reports-section">
               {filtered.map((report, i) => (
-                <ReportCard key={report.id || report.title + i} report={report} />
+                <ReportCard key={report.id || report.title + i} report={report} onDelete={remove} />
               ))}
             </div>
           ) : archivedReports.length === 0 ? (
