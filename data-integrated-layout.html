@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data-Integrated Reports Layout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0e1a;
+            --bg-card: #151b2e;
+            --accent-green: #00ff88;
+            --accent-red: #ff4466;
+            --accent-blue: #4488ff;
+            --accent-orange: #ff9500;
+            --text-primary: #e8edf4;
+            --text-secondary: #8b95a8;
+            --border: #1f2937;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5em;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+        }
+
+        .header nav {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85em;
+        }
+
+        .header nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+
+        .header nav a:hover {
+            color: var(--accent-green);
+        }
+
+        /* Key Innovation: Data Strip */
+        .data-strip {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 32px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            align-items: center;
+        }
+
+        .data-metric {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .data-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+        }
+
+        .data-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .data-value.positive {
+            color: var(--accent-green);
+        }
+
+        .data-value.negative {
+            color: var(--accent-red);
+        }
+
+        .data-value.neutral {
+            color: var(--accent-blue);
+        }
+
+        .data-change {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+        }
+
+        /* Report Cards - More Compact */
+        .reports-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .report-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 28px;
+            transition: all 0.3s;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .report-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateX(4px);
+            box-shadow: 0 8px 32px rgba(68, 136, 255, 0.15);
+        }
+
+        .report-main {
+            min-width: 0;
+        }
+
+        .report-meta {
+            display: flex;
+            gap: 16px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            align-items: center;
+        }
+
+        .report-category {
+            padding: 4px 10px;
+            background: rgba(68, 136, 255, 0.15);
+            border: 1px solid rgba(68, 136, 255, 0.3);
+            border-radius: 4px;
+            color: var(--accent-blue);
+        }
+
+        .report-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .report-excerpt {
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .report-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 3px 10px;
+            background: rgba(139, 149, 168, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--text-secondary);
+        }
+
+        /* Mini Chart in Report Card */
+        .report-chart {
+            width: 180px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(68, 136, 255, 0.05) 100%);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7em;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Right Sidebar - More Data Focused */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .sidebar-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        .panel-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+            color: var(--accent-green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mini-chart {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(68, 136, 255, 0.05) 100%);
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75em;
+            margin-bottom: 16px;
+            text-align: center;
+            padding: 16px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9em;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+        }
+
+        .metric-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+        }
+
+        .signal-item {
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(26, 35, 50, 0.3) 0%, rgba(15, 20, 25, 0.3) 100%);
+            border-left: 3px solid var(--accent-blue);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 0.85em;
+        }
+
+        .signal-item.bullish {
+            border-left-color: var(--accent-green);
+        }
+
+        .signal-item.bearish {
+            border-left-color: var(--accent-red);
+        }
+
+        .signal-item.neutral {
+            border-left-color: var(--accent-blue);
+        }
+
+        .signal-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .signal-desc {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        /* Featured Chart Section */
+        .featured-chart {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chart-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-btn:hover,
+        .chart-btn.active {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(68, 136, 255, 0.1);
+        }
+
+        .large-chart {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.03) 0%, rgba(68, 136, 255, 0.03) 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .report-card {
+                grid-template-columns: 1fr;
+            }
+
+            .report-chart {
+                width: 100%;
+            }
+
+            .data-strip {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Market Intelligence</h1>
+            <p>Quantitative analysis & derivatives strategy</p>
+            <nav>
+                <a href="#">Latest</a>
+                <a href="#">Archive</a>
+                <a href="#">Performance</a>
+                <a href="#">Data</a>
+                <a href="#">About</a>
+            </nav>
+        </div>
+
+        <!-- Live Data Strip - Always Visible -->
+        <div class="data-strip">
+            <div class="data-metric">
+                <div class="data-label">S&P 500</div>
+                <div class="data-value positive">6,042.16 <span class="data-change">+0.8%</span></div>
+            </div>
+            <div class="data-metric">
+                <div class="data-label">VIX</div>
+                <div class="data-value">18.42 <span class="data-change">-2.1%</span></div>
+            </div>
+            <div class="data-metric">
+                <div class="data-label">10Y Yield</div>
+                <div class="data-value neutral">4.28%</div>
+            </div>
+            <div class="data-metric">
+                <div class="data-label">WTI Crude</div>
+                <div class="data-value positive">$76.45 <span class="data-change">+2.3%</span></div>
+            </div>
+            <div class="data-metric">
+                <div class="data-label">DXY</div>
+                <div class="data-value negative">103.24 <span class="data-change">-0.4%</span></div>
+            </div>
+            <div class="data-metric">
+                <div class="data-label">Last Update</div>
+                <div class="data-value" style="font-size: 0.9em; color: var(--text-secondary);">2:45 PM EST</div>
+            </div>
+        </div>
+
+        <!-- Featured Interactive Chart -->
+        <div class="featured-chart">
+            <div class="chart-header">
+                <h2 class="chart-title">Portfolio Performance vs Benchmarks</h2>
+                <div class="chart-controls">
+                    <button class="chart-btn">1M</button>
+                    <button class="chart-btn active">3M</button>
+                    <button class="chart-btn">YTD</button>
+                    <button class="chart-btn">1Y</button>
+                    <button class="chart-btn">All</button>
+                </div>
+            </div>
+            <div class="large-chart">
+                Interactive Chart: Your Returns vs S&P 500, Commodities Index, 60/40 Portfolio<br>
+                Click timeframes above to adjust view • Hover for detailed tooltips
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Reports with Integrated Data -->
+            <div class="reports-section">
+                <div class="report-card">
+                    <div class="report-main">
+                        <div class="report-meta">
+                            <span>Jan 28, 2026</span>
+                            <span>•</span>
+                            <span class="report-category">Commodities</span>
+                        </div>
+                        <h3 class="report-title">Positioning Dynamics in Energy Futures Post-Fed Pivot</h3>
+                        <p class="report-excerpt">
+                            Analysis of net speculative positioning in WTI and Brent crude following December rate cuts. COT data reveals significant shift in managed money positions, with implications for Q1 volatility structure.
+                        </p>
+                        <div class="report-tags">
+                            <span class="tag">Crude Oil</span>
+                            <span class="tag">Futures</span>
+                            <span class="tag">Fed Policy</span>
+                            <span class="tag">COT Data</span>
+                        </div>
+                    </div>
+                    <div class="report-chart">
+                        WTI Net Long Positioning<br><br>
+                        📈 Chart shows spike in spec longs
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-main">
+                        <div class="report-meta">
+                            <span>Jan 25, 2026</span>
+                            <span>•</span>
+                            <span class="report-category">Equities</span>
+                        </div>
+                        <h3 class="report-title">Healthcare REIT Opportunities in Rising Rate Environment</h3>
+                        <p class="report-excerpt">
+                            Examining valuation compression across healthcare REITs and identifying asymmetric risk/reward in skilled nursing facility operators. Cap rate analysis suggests 15-20% upside in select names.
+                        </p>
+                        <div class="report-tags">
+                            <span class="tag">REITs</span>
+                            <span class="tag">Healthcare</span>
+                            <span class="tag">Value</span>
+                            <span class="tag">Income</span>
+                        </div>
+                    </div>
+                    <div class="report-chart">
+                        P/NAV Discount vs Hist Avg<br><br>
+                        📊 Currently -18% vs -8% avg
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-main">
+                        <div class="report-meta">
+                            <span>Jan 22, 2026</span>
+                            <span>•</span>
+                            <span class="report-category">Options</span>
+                        </div>
+                        <h3 class="report-title">Volatility Surface Anomalies in Tech Mega-Caps</h3>
+                        <p class="report-excerpt">
+                            Deep dive into implied volatility skew patterns across FAAMG names. Identifying mispriced calendar spreads and risk reversal opportunities based on historical volatility regimes.
+                        </p>
+                        <div class="report-tags">
+                            <span class="tag">Options</span>
+                            <span class="tag">Volatility</span>
+                            <span class="tag">Tech</span>
+                            <span class="tag">IV Skew</span>
+                        </div>
+                    </div>
+                    <div class="report-chart">
+                        30d vs 60d IV Spread<br><br>
+                        📉 Compression opportunity
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-main">
+                        <div class="report-meta">
+                            <span>Jan 18, 2026</span>
+                            <span>•</span>
+                            <span class="report-category">Strategy</span>
+                        </div>
+                        <h3 class="report-title">Q1 2026 Macro Outlook & Positioning Strategy</h3>
+                        <p class="report-excerpt">
+                            Comprehensive quarterly review covering interest rate expectations, commodity cycles, and equity sector rotation. Building framework for navigating uncertain policy environment.
+                        </p>
+                        <div class="report-tags">
+                            <span class="tag">Macro</span>
+                            <span class="tag">Quarterly</span>
+                            <span class="tag">Strategy</span>
+                        </div>
+                    </div>
+                    <div class="report-chart">
+                        Sector Allocation Changes<br><br>
+                        🔄 Energy ↑, Tech ↓
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-main">
+                        <div class="report-meta">
+                            <span>Jan 15, 2026</span>
+                            <span>•</span>
+                            <span class="report-category">Fixed Income</span>
+                        </div>
+                        <h3 class="report-title">Credit Spread Analysis: IG vs HY Divergence</h3>
+                        <p class="report-excerpt">
+                            Examining unusual spread dynamics between investment grade and high yield corporates. Credit markets pricing in different recession probabilities than equity markets.
+                        </p>
+                        <div class="report-tags">
+                            <span class="tag">Credit</span>
+                            <span class="tag">Spreads</span>
+                            <span class="tag">Fixed Income</span>
+                        </div>
+                    </div>
+                    <div class="report-chart">
+                        HY OAS vs IG OAS<br><br>
+                        📈 Divergence at 3-yr high
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data-Rich Sidebar -->
+            <div class="sidebar">
+                <!-- Live Signals -->
+                <div class="sidebar-panel">
+                    <h4 class="panel-title">Active Signals</h4>
+                    <div class="signal-item bullish">
+                        <div class="signal-title">🟢 Bullish Energy</div>
+                        <div class="signal-desc">COT positioning + seasonal tailwinds converging</div>
+                    </div>
+                    <div class="signal-item bearish">
+                        <div class="signal-title">🔴 Caution Tech</div>
+                        <div class="signal-desc">Elevated valuations + vol compression warning</div>
+                    </div>
+                    <div class="signal-item neutral">
+                        <div class="signal-title">🔵 Neutral Financials</div>
+                        <div class="signal-desc">Rate environment stabilizing, watching spreads</div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="sidebar-panel">
+                    <h4 class="panel-title">
+                        Track Record
+                        <span style="font-size: 0.85em; color: var(--text-secondary); font-weight: 400;">2025 YTD</span>
+                    </h4>
+                    <div class="mini-chart">
+                        Cumulative Return Chart<br>
+                        +12.4% vs SPY +8.1%
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Win Rate</span>
+                        <span class="metric-value" style="color: var(--accent-green);">68%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Return</span>
+                        <span class="metric-value" style="color: var(--accent-green);">+12.4%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Sharpe Ratio</span>
+                        <span class="metric-value">1.82</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Max Drawdown</span>
+                        <span class="metric-value" style="color: var(--accent-red);">-8.2%</span>
+                    </div>
+                </div>
+
+                <!-- Market Positioning -->
+                <div class="sidebar-panel">
+                    <h4 class="panel-title">Current Positioning</h4>
+                    <div class="mini-chart">
+                        Sector Allocation<br>
+                        Energy 25% • Value 20%<br>
+                        Tech 15% • Others 40%
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Active Positions</span>
+                        <span class="metric-value">12</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Cash</span>
+                        <span class="metric-value">18%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Beta to SPY</span>
+                        <span class="metric-value">0.72</span>
+                    </div>
+                </div>
+
+                <!-- Subscribe -->
+                <div class="sidebar-panel">
+                    <h4 class="panel-title">Subscribe</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 14px; line-height: 1.5;">
+                        Weekly reports + real-time signals delivered to your inbox
+                    </p>
+                    <input type="email" placeholder="your@email.com" style="width: 100%; padding: 11px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; margin-bottom: 10px; font-size: 0.9em;">
+                    <button style="width: 100%; padding: 11px; background: var(--accent-green); color: var(--bg-dark); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;">Subscribe Free</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
