@@ -6,25 +6,42 @@ export default function ReportCard({ report }) {
       <div className="report-main">
         <div className="report-meta">
           <span>{report.date}</span>
-          <span>&bull;</span>
-          <span className="report-category">{report.category}</span>
+          {report.category && (
+            <>
+              <span>&bull;</span>
+              <span className="report-category">{report.category}</span>
+            </>
+          )}
         </div>
         <h3 className="report-title">{report.title}</h3>
-        <p className="report-excerpt">{report.excerpt}</p>
-        <div className="report-tags">
-          {report.tags.map((tag) => (
-            <span key={tag} className="tag">
-              {tag}
-            </span>
-          ))}
+        {report.excerpt && <p className="report-excerpt">{report.excerpt}</p>}
+        {report.tags && report.tags.length > 0 && (
+          <div className="report-tags">
+            {report.tags.map((tag) => (
+              <span key={tag} className="tag">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        {report.tickers && report.tickers.length > 0 && (
+          <div className="report-tags" style={{ marginTop: 6 }}>
+            {report.tickers.map((ticker) => (
+              <span key={ticker} className="tag tag-ticker">
+                ${ticker}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      {report.chartLabel && (
+        <div className="report-chart">
+          {report.chartLabel}
+          <br />
+          <br />
+          {report.chartNote}
         </div>
-      </div>
-      <div className="report-chart">
-        {report.chartLabel}
-        <br />
-        <br />
-        {report.chartNote}
-      </div>
+      )}
     </div>
   );
 }

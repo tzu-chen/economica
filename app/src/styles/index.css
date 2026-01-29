@@ -42,3 +42,30 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.empty-reports {
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 48px 28px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.95em;
+}
+
+.empty-reports-link {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  color: var(--accent-blue);
+  text-decoration: none;
+  border: 1px solid var(--accent-blue);
+  border-radius: 6px;
+  padding: 8px 18px;
+  transition: background 0.2s;
+}
+
+.empty-reports-link:hover {
+  background: rgba(68, 136, 255, 0.1);
+}
