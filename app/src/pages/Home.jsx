@@ -12,7 +12,7 @@ import {
 } from '../data/mockData';
 
 export default function Home() {
-  const { reports } = useReports();
+  const { activeReports } = useReports();
 
   return (
     <>
@@ -20,8 +20,8 @@ export default function Home() {
       <FeaturedChart />
       <div className="main-content">
         <div className="reports-section">
-          {reports.length > 0 ? (
-            reports.map((report, i) => (
+          {activeReports.length > 0 ? (
+            activeReports.map((report, i) => (
               <ReportCard key={report.title + i} report={report} />
             ))
           ) : (
