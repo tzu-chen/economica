@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useReports } from '../context/ReportsContext';
 import './ReportWriter.css';
 
 const CATEGORIES = ['Equities', 'Fixed Income', 'Commodities', 'Options', 'Strategy', 'Macro'];
@@ -28,6 +30,8 @@ export default function ReportWriter() {
   const [images, setImages] = useState([]);
   const editorRef = useRef(null);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
+  const { publish } = useReports();
 
   const execCommand = useCallback((command, value = null) => {
     document.execCommand(command, false, value);
@@ -106,7 +110,14 @@ export default function ReportWriter() {
   }, [execCommand]);
 
   const handlePublish = useCallback(() => {
+    if (!title.trim()) {
+      alert('Please enter a title.');
+      return;
+    }
     const content = editorRef.current?.innerHTML || '';
+    const plainText = editorRef.current?.innerText || '';
+    const excerpt =
+      plainText.length > 200 ? plainText.slice(0, 200) + '...' : plainText;
     const report = {
       title,
       category,
@@ -114,15 +125,16 @@ export default function ReportWriter() {
       tickers,
       images: images.map(({ src, caption }) => ({ src, caption })),
       content,
+      excerpt,
       date: new Date().toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
       }),
     };
-    console.log('Publishing report:', report);
-    alert('Report published successfully!');
-  }, [title, category, tags, tickers, images]);
+    publish(report);
+    navigate('/');
+  }, [title, category, tags, tickers, images, publish, navigate]);
 
   const handleSaveDraft = useCallback(() => {
     const content = editorRef.current?.innerHTML || '';
