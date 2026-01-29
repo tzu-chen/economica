@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useReports } from '../context/ReportsContext';
 import './ReportWriter.css';
 
@@ -21,6 +21,10 @@ const BLOCK_FORMATS = [
 ];
 
 export default function ReportWriter() {
+  const { id: editId } = useParams();
+  const navigate = useNavigate();
+  const { publish, update, getReport } = useReports();
+
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [tags, setTags] = useState([]);
@@ -30,8 +34,30 @@ export default function ReportWriter() {
   const [images, setImages] = useState([]);
   const editorRef = useRef(null);
   const fileInputRef = useRef(null);
-  const navigate = useNavigate();
-  const { publish } = useReports();
+  const initializedRef = useRef(false);
+
+  // Pre-fill fields when editing an existing report
+  useEffect(() => {
+    if (!editId || initializedRef.current) return;
+    const existing = getReport(editId);
+    if (!existing) return;
+    initializedRef.current = true;
+    setTitle(existing.title || '');
+    setCategory(existing.category || '');
+    setTags(existing.tags || []);
+    setTickers(existing.tickers || []);
+    setImages(
+      (existing.images || []).map((img, i) => ({
+        id: Date.now() + i,
+        src: img.src,
+        caption: img.caption || '',
+        name: '',
+      })),
+    );
+    if (editorRef.current && existing.content) {
+      editorRef.current.innerHTML = existing.content;
+    }
+  }, [editId, getReport]);
 
   const execCommand = useCallback((command, value = null) => {
     document.execCommand(command, false, value);
@@ -109,16 +135,12 @@ export default function ReportWriter() {
     }
   }, [execCommand]);
 
-  const handlePublish = useCallback(() => {
-    if (!title.trim()) {
-      alert('Please enter a title.');
-      return;
-    }
+  const buildReportData = useCallback(() => {
     const content = editorRef.current?.innerHTML || '';
     const plainText = editorRef.current?.innerText || '';
     const excerpt =
       plainText.length > 200 ? plainText.slice(0, 200) + '...' : plainText;
-    const report = {
+    return {
       title,
       category,
       tags,
@@ -132,9 +154,21 @@ export default function ReportWriter() {
         day: 'numeric',
       }),
     };
-    publish(report);
+  }, [title, category, tags, tickers, images]);
+
+  const handlePublish = useCallback(() => {
+    if (!title.trim()) {
+      alert('Please enter a title.');
+      return;
+    }
+    const data = buildReportData();
+    if (editId) {
+      update(editId, data);
+    } else {
+      publish(data);
+    }
     navigate('/');
-  }, [title, category, tags, tickers, images, publish, navigate]);
+  }, [title, editId, buildReportData, publish, update, navigate]);
 
   const handleSaveDraft = useCallback(() => {
     const content = editorRef.current?.innerHTML || '';
@@ -146,13 +180,13 @@ export default function ReportWriter() {
   return (
     <div className="report-writer">
       <div className="rw-header">
-        <h2>Write New Report</h2>
+        <h2>{editId ? 'Edit Report' : 'Write New Report'}</h2>
         <div className="rw-actions">
           <button className="rw-btn rw-btn-secondary" onClick={handleSaveDraft}>
             Save Draft
           </button>
           <button className="rw-btn rw-btn-primary" onClick={handlePublish}>
-            Publish
+            {editId ? 'Update' : 'Publish'}
           </button>
         </div>
       </div>

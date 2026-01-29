@@ -4,6 +4,12 @@
   gap: 20px;
 }
 
+.report-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .report-card {
   background: var(--bg-card);
   border: 1px solid var(--border);

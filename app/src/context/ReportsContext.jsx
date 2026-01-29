@@ -12,16 +12,34 @@ export function ReportsProvider({ children }) {
     }
   });
 
+  const persist = (next) => {
+    localStorage.setItem('publishedReports', JSON.stringify(next));
+  };
+
   const publish = useCallback((report) => {
     setReports((prev) => {
-      const next = [report, ...prev];
-      localStorage.setItem('publishedReports', JSON.stringify(next));
+      const withId = { ...report, id: report.id || crypto.randomUUID() };
+      const next = [withId, ...prev];
+      persist(next);
       return next;
     });
   }, []);
 
+  const update = useCallback((id, updated) => {
+    setReports((prev) => {
+      const next = prev.map((r) => (r.id === id ? { ...r, ...updated } : r));
+      persist(next);
+      return next;
+    });
+  }, []);
+
+  const getReport = useCallback(
+    (id) => reports.find((r) => r.id === id) || null,
+    [reports],
+  );
+
   return (
-    <ReportsContext.Provider value={{ reports, publish }}>
+    <ReportsContext.Provider value={{ reports, publish, update, getReport }}>
       {children}
     </ReportsContext.Provider>
   );
