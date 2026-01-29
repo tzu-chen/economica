@@ -1,12 +1,21 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useReports } from '../context/ReportsContext';
+import useTickerQuotes from '../hooks/useTickerQuotes';
 import './ReportView.css';
+
+function TickerChange({ value }) {
+  if (value == null) return null;
+  const sign = value >= 0 ? '+' : '';
+  const cls = value >= 0 ? 'rv-ticker-up' : 'rv-ticker-down';
+  return <span className={`rv-ticker-change ${cls}`}>{sign}{value.toFixed(1)}%</span>;
+}
 
 export default function ReportView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getReport, archive } = useReports();
   const report = getReport(id);
+  const tickerChanges = useTickerQuotes(report?.tickers);
 
   if (!report) {
     return (
@@ -52,7 +61,10 @@ export default function ReportView() {
       {report.tickers && report.tickers.length > 0 && (
         <div className="rv-chips">
           {report.tickers.map((ticker) => (
-            <span key={ticker} className="rv-chip rv-chip-ticker">${ticker}</span>
+            <span key={ticker} className="rv-chip rv-chip-ticker">
+              ${ticker}
+              <TickerChange value={tickerChanges.get(ticker)} />
+            </span>
           ))}
         </div>
       )}

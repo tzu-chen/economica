@@ -4,8 +4,8 @@ import FeaturedChart from '../components/FeaturedChart';
 import ReportCard from '../components/ReportCard';
 import Sidebar from '../components/Sidebar';
 import { useReports } from '../context/ReportsContext';
+import useMarketData from '../hooks/useMarketData';
 import {
-  marketMetrics,
   signals,
   trackRecord,
   positioning,
@@ -13,10 +13,11 @@ import {
 
 export default function Home() {
   const { activeReports, archive } = useReports();
+  const { metrics, lastUpdate } = useMarketData();
 
   return (
     <>
-      <DataStrip metrics={marketMetrics} />
+      <DataStrip metrics={metrics} lastUpdate={lastUpdate} />
       <FeaturedChart />
       <div className="main-content">
         <div className="reports-section">
