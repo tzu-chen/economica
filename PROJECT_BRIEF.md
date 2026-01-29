@@ -1,7 +1,7 @@
 # Financial Reports Platform
 
 ## Design Reference
-See `design-reference.html` for the layout we're implementing.
+See `data-integrated-layout.html` for the layout we're implementing.
 
 ## Key Features to Build
 1. Live data strip with real-time market metrics (pull from free APIs)
