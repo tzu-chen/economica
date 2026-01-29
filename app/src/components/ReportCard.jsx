@@ -1,7 +1,8 @@
+import { Link } from 'react-router-dom';
 import './ReportCard.css';
 
 export default function ReportCard({ report }) {
-  return (
+  const card = (
     <div className="report-card">
       <div className="report-main">
         <div className="report-meta">
@@ -44,4 +45,14 @@ export default function ReportCard({ report }) {
       )}
     </div>
   );
+
+  if (report.id) {
+    return (
+      <Link to={`/report/${report.id}`} className="report-card-link">
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
 }
