@@ -18,7 +18,7 @@ export function ReportsProvider({ children }) {
 
   const publish = useCallback((report) => {
     setReports((prev) => {
-      const withId = { ...report, id: report.id || crypto.randomUUID() };
+      const withId = { ...report, id: report.id || crypto.randomUUID(), archived: false };
       const next = [withId, ...prev];
       persist(next);
       return next;
@@ -33,13 +33,26 @@ export function ReportsProvider({ children }) {
     });
   }, []);
 
+  const archive = useCallback((id) => {
+    setReports((prev) => {
+      const next = prev.map((r) => (r.id === id ? { ...r, archived: true } : r));
+      persist(next);
+      return next;
+    });
+  }, []);
+
   const getReport = useCallback(
     (id) => reports.find((r) => r.id === id) || null,
     [reports],
   );
 
+  const activeReports = reports.filter((r) => !r.archived);
+  const archivedReports = reports.filter((r) => r.archived);
+
   return (
-    <ReportsContext.Provider value={{ reports, publish, update, getReport }}>
+    <ReportsContext.Provider
+      value={{ reports, activeReports, archivedReports, publish, update, archive, getReport }}
+    >
       {children}
     </ReportsContext.Provider>
   );

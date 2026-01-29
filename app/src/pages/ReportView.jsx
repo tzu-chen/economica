@@ -1,10 +1,11 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useReports } from '../context/ReportsContext';
 import './ReportView.css';
 
 export default function ReportView() {
   const { id } = useParams();
-  const { getReport } = useReports();
+  const navigate = useNavigate();
+  const { getReport, archive } = useReports();
   const report = getReport(id);
 
   if (!report) {
@@ -16,11 +17,23 @@ export default function ReportView() {
     );
   }
 
+  const handleArchive = () => {
+    archive(report.id);
+    navigate('/');
+  };
+
   return (
     <div className="report-view">
       <div className="rv-top-bar">
         <Link to="/" className="rv-back">&larr; Back to Home</Link>
-        <Link to={`/write/${report.id}`} className="rv-edit-btn">Edit Report</Link>
+        <div className="rv-top-actions">
+          <Link to={`/write/${report.id}`} className="rv-edit-btn">Edit Report</Link>
+          {!report.archived && (
+            <button className="rv-archive-btn" onClick={handleArchive}>
+              Archive Report
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="rv-meta">
@@ -31,6 +44,7 @@ export default function ReportView() {
             <span className="rv-category">{report.category}</span>
           </>
         )}
+        {report.archived && <span className="rv-archived-badge">Archived</span>}
       </div>
 
       <h1 className="rv-title">{report.title}</h1>

@@ -32,6 +32,12 @@
   opacity: 0.8;
 }
 
+.rv-top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .rv-edit-btn {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.82em;
@@ -47,6 +53,32 @@
 .rv-edit-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
+}
+
+.rv-archive-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82em;
+  letter-spacing: 0.5px;
+  color: var(--accent-orange);
+  background: none;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  border-radius: 6px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.rv-archive-btn:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: rgba(255, 149, 0, 0.5);
+}
+
+.rv-archived-badge {
+  padding: 4px 10px;
+  background: rgba(255, 149, 0, 0.12);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  border-radius: 4px;
+  color: var(--accent-orange);
 }
 
 .rv-meta {

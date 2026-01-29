@@ -4,7 +4,7 @@ import './Header.css';
 const NAV_LINKS = [
   { label: 'Latest', to: '/' },
   { label: 'Write', to: '/write' },
-  { label: 'Archive', to: '#' },
+  { label: 'Archive', to: '/archive' },
   { label: 'Performance', to: '#' },
   { label: 'Data', to: '#' },
   { label: 'About', to: '#' },
