@@ -90,6 +90,20 @@
   color: var(--accent-green);
 }
 
+.ticker-change {
+  margin-left: 5px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.ticker-change-up {
+  color: var(--accent-green);
+}
+
+.ticker-change-down {
+  color: var(--accent-red);
+}
+
 .report-actions {
   display: flex;
   flex-direction: column;

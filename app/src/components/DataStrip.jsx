@@ -1,6 +1,13 @@
 import './DataStrip.css';
 
-export default function DataStrip({ metrics }) {
+export default function DataStrip({ metrics, lastUpdate }) {
+  const displayTime = (lastUpdate || new Date()).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'America/New_York',
+  });
+
   return (
     <div className="data-strip">
       {metrics.map((m) => (
@@ -15,13 +22,7 @@ export default function DataStrip({ metrics }) {
       <div className="data-metric">
         <div className="data-label">Last Update</div>
         <div className="data-value last-update">
-          {new Date().toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-            timeZone: 'America/New_York',
-          })}{' '}
-          EST
+          {displayTime} EST
         </div>
       </div>
     </div>

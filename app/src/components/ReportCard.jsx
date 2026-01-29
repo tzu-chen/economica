@@ -1,7 +1,16 @@
 import { Link } from 'react-router-dom';
+import useTickerQuotes from '../hooks/useTickerQuotes';
 import './ReportCard.css';
 
+function TickerChange({ value }) {
+  if (value == null) return null;
+  const sign = value >= 0 ? '+' : '';
+  const cls = value >= 0 ? 'ticker-change-up' : 'ticker-change-down';
+  return <span className={`ticker-change ${cls}`}>{sign}{value.toFixed(1)}%</span>;
+}
+
 export default function ReportCard({ report, onArchive, onDelete }) {
+  const tickerChanges = useTickerQuotes(report.tickers);
   const handleAction = (e, action) => {
     e.preventDefault();
     e.stopPropagation();
@@ -36,6 +45,7 @@ export default function ReportCard({ report, onArchive, onDelete }) {
             {report.tickers.map((ticker) => (
               <span key={ticker} className="tag tag-ticker">
                 ${ticker}
+                <TickerChange value={tickerChanges.get(ticker)} />
               </span>
             ))}
           </div>

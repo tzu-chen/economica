@@ -133,6 +133,19 @@
   color: var(--accent-green);
 }
 
+.rv-ticker-change {
+  margin-left: 6px;
+  font-weight: 600;
+}
+
+.rv-ticker-up {
+  color: var(--accent-green);
+}
+
+.rv-ticker-down {
+  color: var(--accent-red);
+}
+
 /* Report body content */
 .rv-content {
   color: var(--text-primary);
