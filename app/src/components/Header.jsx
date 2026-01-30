@@ -5,9 +5,7 @@ const NAV_LINKS = [
   { label: 'Latest', to: '/' },
   { label: 'Write', to: '/write' },
   { label: 'Archive', to: '/archive' },
-  { label: 'Performance', to: '#' },
-  { label: 'Data', to: '#' },
-  { label: 'About', to: '#' },
+  { label: 'Links', to: '/links' },
 ];
 
 export default function Header() {
