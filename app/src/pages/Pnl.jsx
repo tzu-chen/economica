@@ -51,8 +51,12 @@ export default function Pnl() {
   const [editingDay, setEditingDay] = useState(null);
   const [editValue, setEditValue] = useState('');
 
+  const [balanceInput, setBalanceInput] = useState('');
+  const [editingBalance, setEditingBalance] = useState(false);
+
   const monthKey = getMonthKey(year, month);
   const monthData = data[monthKey] || {};
+  const startingBalance = monthData._balance ?? null;
   const daysInMonth = getDaysInMonth(year, month);
   const firstDayOfWeek = new Date(year, month, 1).getDay();
 
@@ -77,12 +81,49 @@ export default function Pnl() {
     return sum;
   }, [monthData, daysInMonth]);
 
+  const pctChange = useMemo(() => {
+    if (startingBalance === null || startingBalance === 0) return null;
+    return (cumulativePnl / startingBalance) * 100;
+  }, [cumulativePnl, startingBalance]);
+
   const handleMonthChange = useCallback((e) => {
     const [y, m] = e.target.value.split('-').map(Number);
     setYear(y);
     setMonth(m);
     setEditingDay(null);
+    setEditingBalance(false);
   }, []);
+
+  const startEditBalance = useCallback(() => {
+    setEditingBalance(true);
+    setBalanceInput(startingBalance !== null ? String(startingBalance) : '');
+  }, [startingBalance]);
+
+  const saveBalance = useCallback(() => {
+    const next = { ...data };
+    if (!next[monthKey]) next[monthKey] = {};
+    const trimmed = balanceInput.trim();
+    if (trimmed === '') {
+      delete next[monthKey]._balance;
+    } else {
+      const num = parseFloat(trimmed);
+      if (!isNaN(num)) {
+        next[monthKey]._balance = num;
+      }
+    }
+    setData(next);
+    savePnlData(next);
+    setEditingBalance(false);
+    setBalanceInput('');
+  }, [balanceInput, data, monthKey]);
+
+  const handleBalanceKeyDown = useCallback((e) => {
+    if (e.key === 'Enter') saveBalance();
+    if (e.key === 'Escape') {
+      setEditingBalance(false);
+      setBalanceInput('');
+    }
+  }, [saveBalance]);
 
   const startEdit = useCallback((day) => {
     setEditingDay(day);
@@ -153,9 +194,39 @@ export default function Pnl() {
         </select>
       </div>
 
-      <div className={`pnl-cumulative ${pnlClass(cumulativePnl)}`}>
-        <span className="pnl-cumulative-label">Cumulative P&L</span>
-        <span className="pnl-cumulative-value">{formatPnl(cumulativePnl)}</span>
+      <div className="pnl-summary">
+        <div className="pnl-balance-row" onClick={() => !editingBalance && startEditBalance()}>
+          <span className="pnl-balance-label">Starting Balance</span>
+          {editingBalance ? (
+            <input
+              className="pnl-balance-input"
+              type="text"
+              inputMode="decimal"
+              autoFocus
+              placeholder="Enter balance"
+              value={balanceInput}
+              onChange={(e) => setBalanceInput(e.target.value)}
+              onKeyDown={handleBalanceKeyDown}
+              onBlur={saveBalance}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <span className="pnl-balance-value">
+              {startingBalance !== null ? startingBalance.toLocaleString() : '---'}
+            </span>
+          )}
+        </div>
+        <div className={`pnl-cumulative ${pnlClass(cumulativePnl)}`}>
+          <span className="pnl-cumulative-label">Cumulative P&L</span>
+          <div className="pnl-cumulative-right">
+            <span className="pnl-cumulative-value">{formatPnl(cumulativePnl)}</span>
+            {pctChange !== null && (
+              <span className={`pnl-pct ${pnlClass(pctChange)}`}>
+                {pctChange > 0 ? '+' : ''}{pctChange.toFixed(2)}%
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="pnl-calendar">
