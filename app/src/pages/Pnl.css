@@ -37,16 +37,68 @@
   color: var(--text-primary);
 }
 
+/* Summary section */
+.pnl-summary {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+/* Starting balance row */
+.pnl-balance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pnl-balance-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pnl-balance-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pnl-balance-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1em;
+  color: var(--text-primary);
+}
+
+.pnl-balance-input {
+  background: transparent;
+  border: 1px solid var(--accent-blue);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: var(--text-primary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1em;
+  outline: none;
+  text-align: right;
+  width: 180px;
+}
+
+.pnl-balance-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.4;
+}
+
 /* Cumulative PnL banner */
 .pnl-cumulative {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
   padding: 18px 24px;
-  margin-bottom: 24px;
 }
 
 .pnl-cumulative-label {
@@ -72,6 +124,30 @@
 }
 
 .pnl-cumulative.pnl-zero .pnl-cumulative-value {
+  color: var(--text-secondary);
+}
+
+.pnl-cumulative-right {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.pnl-pct {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.pnl-pct.pnl-positive {
+  color: var(--accent-green);
+}
+
+.pnl-pct.pnl-negative {
+  color: var(--accent-red);
+}
+
+.pnl-pct.pnl-zero {
   color: var(--text-secondary);
 }
 
