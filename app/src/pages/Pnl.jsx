@@ -1,28 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
+import { loadPnlData, savePnlData, getDaysInMonth, getMonthKey } from '../hooks/usePnlData';
 import './Pnl.css';
-
-const STORAGE_KEY = 'monthlyPnl';
-
-function loadPnlData() {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-}
-
-function savePnlData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function getDaysInMonth(year, month) {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-function getMonthKey(year, month) {
-  return `${year}-${String(month + 1).padStart(2, '0')}`;
-}
 
 function buildMonthOptions() {
   const now = new Date();

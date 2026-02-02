@@ -9,14 +9,48 @@
 .chart-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 24px;
+}
+
+.chart-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .chart-title {
   font-family: 'Crimson Pro', serif;
   font-size: 1.6em;
   font-weight: 600;
+}
+
+.chart-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.chart-stat-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.15em;
+  font-weight: 600;
+}
+
+.chart-stat-pct {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.chart-stat-value.positive,
+.chart-stat-pct.positive {
+  color: var(--accent-green);
+}
+
+.chart-stat-value.negative,
+.chart-stat-pct.negative {
+  color: var(--accent-red);
 }
 
 .chart-controls {
@@ -43,6 +77,19 @@
   background: rgba(68, 136, 255, 0.1);
 }
 
+/* SVG chart area */
+.chart-svg-wrap {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+.chart-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Empty state */
 .large-chart {
   background: linear-gradient(
     135deg,
@@ -51,7 +98,7 @@
   );
   border: 1px solid var(--border);
   border-radius: 8px;
-  height: 320px;
+  height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,4 +106,58 @@
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.85em;
   text-align: center;
+  gap: 6px;
+}
+
+.chart-empty-link {
+  color: var(--accent-blue);
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.chart-empty-link:hover {
+  text-decoration: underline;
+}
+
+/* Hover tooltip */
+.chart-tooltip {
+  position: absolute;
+  transform: translate(-50%, -120%);
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.chart-tooltip-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7em;
+  color: var(--text-secondary);
+}
+
+.chart-tooltip-equity {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chart-tooltip-pnl {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+.chart-tooltip-pnl.positive {
+  color: var(--accent-green);
+}
+
+.chart-tooltip-pnl.negative {
+  color: var(--accent-red);
 }
