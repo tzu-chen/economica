@@ -1,0 +1,205 @@
+.pnl-page {
+  /* full width within container */
+}
+
+.pnl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.pnl-header h2 {
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.8em;
+  color: var(--text-primary);
+}
+
+.pnl-month-select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9em;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pnl-month-select:focus {
+  border-color: var(--accent-blue);
+}
+
+.pnl-month-select option {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+/* Cumulative PnL banner */
+.pnl-cumulative {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+}
+
+.pnl-cumulative-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pnl-cumulative-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.4em;
+  font-weight: 600;
+}
+
+.pnl-cumulative.pnl-positive .pnl-cumulative-value {
+  color: var(--accent-green);
+}
+
+.pnl-cumulative.pnl-negative .pnl-cumulative-value {
+  color: var(--accent-red);
+}
+
+.pnl-cumulative.pnl-zero .pnl-cumulative-value {
+  color: var(--text-secondary);
+}
+
+/* Calendar layout */
+.pnl-calendar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.pnl-day-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.pnl-day-label {
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75em;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pnl-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* Day cells */
+.pnl-cell {
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 72px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pnl-cell:hover:not(.pnl-cell-empty) {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pnl-cell-empty {
+  cursor: default;
+  background: none;
+}
+
+.pnl-cell-editing {
+  border-color: var(--accent-blue) !important;
+  background: rgba(68, 136, 255, 0.06);
+}
+
+.pnl-cell-day {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7em;
+  color: var(--text-secondary);
+}
+
+.pnl-cell-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  margin-top: auto;
+}
+
+.pnl-cell.pnl-positive .pnl-cell-value {
+  color: var(--accent-green);
+}
+
+.pnl-cell.pnl-negative .pnl-cell-value {
+  color: var(--accent-red);
+}
+
+.pnl-cell.pnl-zero .pnl-cell-value {
+  color: var(--text-secondary);
+}
+
+.pnl-cell.pnl-positive {
+  background: rgba(0, 255, 136, 0.04);
+}
+
+.pnl-cell.pnl-negative {
+  background: rgba(255, 68, 102, 0.04);
+}
+
+/* Inline edit input */
+.pnl-cell-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  padding: 0;
+  margin-top: auto;
+}
+
+.pnl-cell-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.4;
+}
+
+@media (max-width: 700px) {
+  .pnl-cell {
+    min-height: 56px;
+    padding: 6px;
+  }
+
+  .pnl-cell-value,
+  .pnl-cell-input {
+    font-size: 0.7em;
+  }
+
+  .pnl-cell-day {
+    font-size: 0.6em;
+  }
+}

@@ -6,6 +6,7 @@ import ReportWriter from './pages/ReportWriter';
 import ReportView from './pages/ReportView';
 import Archive from './pages/Archive';
 import Links from './pages/Links';
+import Pnl from './pages/Pnl';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/report/:id" element={<ReportView />} />
             <Route path="/archive" element={<Archive />} />
             <Route path="/links" element={<Links />} />
+            <Route path="/pnl" element={<Pnl />} />
           </Routes>
         </div>
       </ReportsProvider>
