@@ -69,6 +69,29 @@ export async function fetchMarketMetrics() {
 }
 
 /**
+ * Fetch historical daily closes for S&P 500 over a given range.
+ * range: '1mo','3mo','6mo','1y','5y','max'
+ * Returns array of { date: Date, close: number } sorted chronologically.
+ */
+export async function fetchSPHistory(range = '1y') {
+  const res = await fetch(
+    `${CHART_BASE}/%5EGSPC?range=${range}&interval=1d`,
+  );
+  if (!res.ok) throw new Error(`Yahoo Finance ${res.status} for ^GSPC history`);
+  const json = await res.json();
+  const result = json.chart.result[0];
+  const timestamps = result.timestamp || [];
+  const closes = result.indicators.quote[0].close || [];
+  const points = [];
+  for (let i = 0; i < timestamps.length; i++) {
+    if (closes[i] != null) {
+      points.push({ date: new Date(timestamps[i] * 1000), close: closes[i] });
+    }
+  }
+  return points;
+}
+
+/**
  * Fetch daily percentage change for a list of ticker symbols.
  * Returns a Map<symbol, number> where the number is the % change.
  */
