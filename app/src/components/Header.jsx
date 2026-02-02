@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { label: 'Write', to: '/write' },
   { label: 'Archive', to: '/archive' },
   { label: 'Links', to: '/links' },
+  { label: 'P&L', to: '/pnl' },
 ];
 
 export default function Header() {
