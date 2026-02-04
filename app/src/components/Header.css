@@ -35,3 +35,156 @@
 .header nav a:hover {
   color: var(--accent-green);
 }
+
+/* Header top row layout */
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Notification bell */
+.truth-bell {
+  position: relative;
+}
+
+.bell-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s, border-color 0.2s;
+  position: relative;
+}
+
+.bell-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
+.bell-btn.has-unread {
+  color: var(--accent-orange);
+  border-color: var(--accent-orange);
+  animation: bell-pulse 2s ease-in-out infinite;
+}
+
+@keyframes bell-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.bell-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--accent-red);
+  color: #fff;
+  font-size: 0.65em;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* Dropdown */
+.truth-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 360px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  z-index: 100;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.truth-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.truth-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--accent-green);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  padding: 2px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.truth-toggle:hover {
+  border-color: var(--accent-green);
+}
+
+.truth-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
+
+.truth-posts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.truth-posts li {
+  border-bottom: 1px solid var(--border);
+}
+
+.truth-posts li:last-child {
+  border-bottom: none;
+}
+
+.truth-posts li a {
+  display: block;
+  padding: 12px 16px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.truth-posts li a:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.truth-post-text {
+  display: block;
+  color: var(--text-primary);
+  font-size: 0.85em;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.truth-post-time {
+  display: block;
+  color: var(--text-secondary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7em;
+}

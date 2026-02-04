@@ -14,6 +14,14 @@ export default defineConfig({
           'User-Agent': 'Mozilla/5.0 (compatible)',
         },
       },
+      '/api/truth': {
+        target: 'https://truthsocial.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/truth/, ''),
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible)',
+        },
+      },
     },
   },
 })
