@@ -5,11 +5,6 @@ import ReportCard from '../components/ReportCard';
 import Sidebar from '../components/Sidebar';
 import { useReports } from '../context/ReportsContext';
 import useMarketData from '../hooks/useMarketData';
-import {
-  signals,
-  trackRecord,
-  positioning,
-} from '../data/mockData';
 
 export default function Home() {
   const { activeReports, archive } = useReports();
@@ -34,11 +29,7 @@ export default function Home() {
             </div>
           )}
         </div>
-        <Sidebar
-          signals={signals}
-          trackRecord={trackRecord}
-          positioning={positioning}
-        />
+        <Sidebar />
       </div>
     </>
   );
