@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { loadPnlData, savePnlData, getDaysInMonth, getMonthKey, loadPnlNotes, savePnlNotes } from '../hooks/usePnlData';
+import { marked } from 'marked';
 import './Pnl.css';
+
+marked.setOptions({ breaks: true, gfm: true });
+
+function renderMarkdown(text) {
+  return { __html: marked.parse(text) };
+}
 
 function buildMonthOptions() {
   const now = new Date();
@@ -35,6 +42,7 @@ export default function Pnl() {
   const [notes, setNotes] = useState(loadPnlNotes);
   const [noteDay, setNoteDay] = useState(null);
   const [noteValue, setNoteValue] = useState('');
+  const [noteEditing, setNoteEditing] = useState(false);
   const noteRef = useRef(null);
 
   const monthKey = getMonthKey(year, month);
@@ -148,8 +156,10 @@ export default function Pnl() {
 
   const openNote = useCallback((day, e) => {
     e.stopPropagation();
+    const existing = monthNotes[day] || '';
     setNoteDay(day);
-    setNoteValue(monthNotes[day] || '');
+    setNoteValue(existing);
+    setNoteEditing(!existing);
   }, [monthNotes]);
 
   const saveNote = useCallback(() => {
@@ -169,6 +179,7 @@ export default function Pnl() {
     savePnlNotes(next);
     setNoteDay(null);
     setNoteValue('');
+    setNoteEditing(false);
   }, [noteDay, noteValue, notes, monthKey]);
 
   // Close note popup on outside click
@@ -276,27 +287,48 @@ export default function Pnl() {
                   <span className="pnl-cell-day">{day}</span>
                   <button
                     className={`pnl-note-btn${hasNote ? ' has-note' : ''}`}
-                    title={hasNote ? 'Edit note' : 'Add note'}
+                    title={hasNote ? 'View note' : 'Add note'}
                     onClick={(e) => openNote(day, e)}
                   >
-                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14 1l1 1-9 9-3 1 1-3 9-9zM2 14h12" />
-                    </svg>
+                    {hasNote ? (
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" stroke="none">
+                        <path d="M3 1C2.45 1 2 1.45 2 2v12c0 .55.45 1 1 1h10c.55 0 1-.45 1-1V5l-4-4H3zm7 1l3 3h-3V2zM4 8h8v1H4V8zm0 2.5h6v1H4v-1z" />
+                      </svg>
+                    ) : (
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 1l1 1-9 9-3 1 1-3 9-9zM2 14h12" />
+                      </svg>
+                    )}
                   </button>
                 </div>
                 {isNoteOpen && (
                   <div className="pnl-note-popup" ref={noteRef} onClick={(e) => e.stopPropagation()}>
-                    <textarea
-                      className="pnl-note-textarea"
-                      autoFocus
-                      placeholder="Add a note..."
-                      value={noteValue}
-                      onChange={(e) => setNoteValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Escape') { setNoteDay(null); setNoteValue(''); }
-                      }}
-                    />
-                    <button className="pnl-note-save" onClick={saveNote}>Done</button>
+                    {noteEditing ? (
+                      <>
+                        <textarea
+                          className="pnl-note-textarea"
+                          autoFocus
+                          placeholder="Add a note... (supports markdown)"
+                          value={noteValue}
+                          onChange={(e) => setNoteValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape') { setNoteDay(null); setNoteValue(''); setNoteEditing(false); }
+                          }}
+                        />
+                        <div className="pnl-note-actions">
+                          <button className="pnl-note-cancel" onClick={() => { setNoteDay(null); setNoteValue(''); setNoteEditing(false); }}>Cancel</button>
+                          <button className="pnl-note-save" onClick={saveNote}>Save</button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="pnl-note-rendered" dangerouslySetInnerHTML={renderMarkdown(noteValue)} />
+                        <div className="pnl-note-actions">
+                          <button className="pnl-note-cancel" onClick={() => { setNoteDay(null); setNoteValue(''); setNoteEditing(false); }}>Close</button>
+                          <button className="pnl-note-save" onClick={() => setNoteEditing(true)}>Edit</button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
                 {isEditing ? (
