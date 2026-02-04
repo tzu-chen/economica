@@ -20,6 +20,20 @@ const BLOCK_FORMATS = [
   { value: 'blockquote', label: 'Blockquote' },
 ];
 
+const DRAFTS_KEY = 'reportDrafts';
+
+function loadDrafts() {
+  try {
+    return JSON.parse(localStorage.getItem(DRAFTS_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveDrafts(drafts) {
+  localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
+}
+
 export default function ReportWriter() {
   const { id: editId } = useParams();
   const navigate = useNavigate();
@@ -32,6 +46,9 @@ export default function ReportWriter() {
   const [tickers, setTickers] = useState([]);
   const [tickerInput, setTickerInput] = useState('');
   const [images, setImages] = useState([]);
+  const [drafts, setDrafts] = useState(loadDrafts);
+  const [activeDraftId, setActiveDraftId] = useState(null);
+  const [savedMessage, setSavedMessage] = useState('');
   const editorRef = useRef(null);
   const fileInputRef = useRef(null);
   const initializedRef = useRef(false);
@@ -172,10 +189,62 @@ export default function ReportWriter() {
 
   const handleSaveDraft = useCallback(() => {
     const content = editorRef.current?.innerHTML || '';
-    const draft = { title, category, tags, tickers, images, content };
-    localStorage.setItem('reportDraft', JSON.stringify(draft));
-    alert('Draft saved.');
-  }, [title, category, tags, tickers, images]);
+    const now = new Date();
+    const draft = {
+      id: activeDraftId || Date.now().toString(),
+      title: title || 'Untitled Draft',
+      category,
+      tags,
+      tickers,
+      images,
+      content,
+      savedAt: now.toISOString(),
+    };
+    setDrafts((prev) => {
+      const existing = prev.findIndex((d) => d.id === draft.id);
+      let updated;
+      if (existing >= 0) {
+        updated = prev.map((d) => (d.id === draft.id ? draft : d));
+      } else {
+        updated = [draft, ...prev];
+      }
+      saveDrafts(updated);
+      return updated;
+    });
+    setActiveDraftId(draft.id);
+    setSavedMessage('Draft saved');
+    setTimeout(() => setSavedMessage(''), 2000);
+  }, [title, category, tags, tickers, images, activeDraftId]);
+
+  const handleLoadDraft = useCallback((draft) => {
+    setTitle(draft.title || '');
+    setCategory(draft.category || '');
+    setTags(draft.tags || []);
+    setTickers(draft.tickers || []);
+    setImages(
+      (draft.images || []).map((img, i) => ({
+        id: Date.now() + i,
+        src: img.src,
+        caption: img.caption || '',
+        name: img.name || '',
+      })),
+    );
+    if (editorRef.current) {
+      editorRef.current.innerHTML = draft.content || '';
+    }
+    setActiveDraftId(draft.id);
+  }, []);
+
+  const handleDeleteDraft = useCallback((draftId) => {
+    setDrafts((prev) => {
+      const updated = prev.filter((d) => d.id !== draftId);
+      saveDrafts(updated);
+      return updated;
+    });
+    if (activeDraftId === draftId) {
+      setActiveDraftId(null);
+    }
+  }, [activeDraftId]);
 
   return (
     <div className="report-writer">
@@ -185,11 +254,46 @@ export default function ReportWriter() {
           <button className="rw-btn rw-btn-secondary" onClick={handleSaveDraft}>
             Save Draft
           </button>
+          {savedMessage && <span className="rw-saved-msg">{savedMessage}</span>}
           <button className="rw-btn rw-btn-primary" onClick={handlePublish}>
             {editId ? 'Update' : 'Publish'}
           </button>
         </div>
       </div>
+
+      {/* Saved Drafts */}
+      {drafts.length > 0 && (
+        <div className="rw-drafts-panel">
+          <div className="rw-drafts-label">Saved Drafts</div>
+          <div className="rw-drafts-list">
+            {drafts.map((draft) => (
+              <div
+                key={draft.id}
+                className={`rw-draft-item${activeDraftId === draft.id ? ' rw-draft-active' : ''}`}
+              >
+                <button className="rw-draft-load" onClick={() => handleLoadDraft(draft)}>
+                  <span className="rw-draft-title">{draft.title || 'Untitled'}</span>
+                  <span className="rw-draft-date">
+                    {new Date(draft.savedAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </button>
+                <button
+                  className="rw-draft-delete"
+                  title="Delete draft"
+                  onClick={() => handleDeleteDraft(draft.id)}
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Title */}
       <input
