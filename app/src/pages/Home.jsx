@@ -1,18 +1,14 @@
 import { Link } from 'react-router-dom';
-import DataStrip from '../components/DataStrip';
 import FeaturedChart from '../components/FeaturedChart';
 import ReportCard from '../components/ReportCard';
 import Sidebar from '../components/Sidebar';
 import { useReports } from '../context/ReportsContext';
-import useMarketData from '../hooks/useMarketData';
 
 export default function Home() {
   const { activeReports, archive } = useReports();
-  const { metrics, lastUpdate } = useMarketData();
 
   return (
     <>
-      <DataStrip metrics={metrics} lastUpdate={lastUpdate} />
       <FeaturedChart />
       <div className="main-content">
         <div className="reports-section">

@@ -54,7 +54,7 @@ export default function Header() {
   return (
     <div className="header">
       <div className="header-top">
-        <div>
+        <div className="header-center">
           <h1>Market Intelligence</h1>
           <p>Quantitative analysis &amp; derivatives strategy</p>
         </div>
