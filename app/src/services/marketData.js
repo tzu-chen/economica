@@ -95,6 +95,30 @@ export async function fetchSPHistory(range = '1y') {
  * Fetch daily percentage change for a list of ticker symbols.
  * Returns a Map<symbol, number> where the number is the % change.
  */
+/**
+ * Fetch price data for a list of ticker symbols.
+ * Returns a Map<symbol, { price, changePercent }>.
+ */
+export async function fetchTickerPrices(tickers) {
+  if (!tickers || tickers.length === 0) return new Map();
+
+  const results = await Promise.allSettled(
+    tickers.map((t) => fetchQuote(t)),
+  );
+
+  const map = new Map();
+  tickers.forEach((ticker, i) => {
+    const result = results[i];
+    if (result.status === 'fulfilled') {
+      map.set(ticker, {
+        price: result.value.price,
+        changePercent: result.value.changePercent,
+      });
+    }
+  });
+  return map;
+}
+
 export async function fetchTickerChanges(tickers) {
   if (!tickers || tickers.length === 0) return new Map();
 
