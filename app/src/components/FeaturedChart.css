@@ -28,7 +28,8 @@
 .chart-stats {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 8px 12px;
+  flex-wrap: wrap;
 }
 
 .chart-stat-value {
@@ -53,12 +54,16 @@
   color: var(--accent-red);
 }
 
-.chart-stat-sp {
+.chart-stat-index {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8em;
-  color: var(--accent-blue);
   opacity: 0.8;
 }
+
+.chart-stat-sp { color: var(--accent-blue); }
+.chart-stat-nasdaq { color: var(--accent-orange); }
+.chart-stat-dow { color: var(--index-purple); }
+.chart-stat-russell { color: var(--index-cyan); }
 
 .chart-controls {
   display: flex;
@@ -169,12 +174,16 @@
   color: var(--accent-red);
 }
 
-.chart-tooltip-sp {
+.chart-tooltip-index {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.7em;
-  color: var(--accent-blue);
   opacity: 0.8;
 }
+
+.chart-tooltip-sp { color: var(--accent-blue); }
+.chart-tooltip-nasdaq { color: var(--accent-orange); }
+.chart-tooltip-dow { color: var(--index-purple); }
+.chart-tooltip-russell { color: var(--index-cyan); }
 
 /* Legend */
 .chart-legend {
@@ -206,5 +215,20 @@
 
 .chart-legend-sp {
   background: var(--accent-blue);
+  opacity: 0.5;
+}
+
+.chart-legend-nasdaq {
+  background: var(--accent-orange);
+  opacity: 0.5;
+}
+
+.chart-legend-dow {
+  background: var(--index-purple);
+  opacity: 0.5;
+}
+
+.chart-legend-russell {
+  background: var(--index-cyan);
   opacity: 0.5;
 }

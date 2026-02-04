@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { usePnlSnapshot, useEquityCurve } from '../hooks/usePnlData';
-import { fetchSPHistory } from '../services/marketData';
+import { fetchIndexHistory } from '../services/marketData';
 import './FeaturedChart.css';
 
 const TIME_RANGES = ['1M', '3M', 'YTD', '1Y', 'All'];
@@ -59,10 +59,17 @@ const VB_W = 800;
 const VB_H = 340;
 const PAD = { top: 24, right: 24, bottom: 36, left: 72 };
 
+const INDICES = [
+  { symbol: '^GSPC', label: 'S&P 500', color: 'var(--accent-blue)', cssClass: 'sp' },
+  { symbol: '^IXIC', label: 'Nasdaq', color: 'var(--accent-orange)', cssClass: 'nasdaq' },
+  { symbol: '^DJI', label: 'Dow Jones', color: 'var(--index-purple)', cssClass: 'dow' },
+  { symbol: '^RUT', label: 'Russell 2000', color: 'var(--index-cyan)', cssClass: 'russell' },
+];
+
 export default function FeaturedChart() {
   const [activeRange, setActiveRange] = useState('3M');
   const [hoverIdx, setHoverIdx] = useState(null);
-  const [spRaw, setSpRaw] = useState([]);
+  const [indexRaw, setIndexRaw] = useState({});
 
   const pnlData = usePnlSnapshot();
   const allPoints = useEquityCurve(pnlData);
@@ -70,42 +77,59 @@ export default function FeaturedChart() {
 
   const hasData = points.length > 1;
 
-  // Fetch S&P history when range changes
+  // Fetch all index histories when range changes
   useEffect(() => {
     let cancelled = false;
-    fetchSPHistory(rangeToYahoo(activeRange))
-      .then((data) => { if (!cancelled) setSpRaw(data); })
-      .catch(() => { if (!cancelled) setSpRaw([]); });
+    const yahooRange = rangeToYahoo(activeRange);
+    Promise.allSettled(
+      INDICES.map((idx) => fetchIndexHistory(idx.symbol, yahooRange))
+    ).then((results) => {
+      if (cancelled) return;
+      const raw = {};
+      INDICES.forEach((idx, i) => {
+        raw[idx.symbol] = results[i].status === 'fulfilled' ? results[i].value : [];
+      });
+      setIndexRaw(raw);
+    });
     return () => { cancelled = true; };
   }, [activeRange]);
 
-  // Build S&P % return series aligned to the portfolio date range
-  const spSeries = useMemo(() => {
-    if (!hasData || !spRaw.length) return [];
+  // Build % return + close series for each index, aligned to portfolio dates
+  const indexSeries = useMemo(() => {
+    if (!hasData) return {};
     const startDate = points[0].date;
-    // Find S&P close on or just before the portfolio start date
     const startKey = dateKey(startDate);
-    let baseIdx = -1;
-    for (let i = 0; i < spRaw.length; i++) {
-      if (dateKey(spRaw[i].date) <= startKey) baseIdx = i;
-    }
-    if (baseIdx < 0) baseIdx = 0;
-    const baseClose = spRaw[baseIdx].close;
-    // Build lookup from date key -> % return
-    const map = new Map();
-    for (let i = baseIdx; i < spRaw.length; i++) {
-      map.set(dateKey(spRaw[i].date), ((spRaw[i].close - baseClose) / baseClose) * 100);
-    }
-    // Align to portfolio points by date
-    const series = [];
-    let lastVal = 0;
-    for (const pt of points) {
-      const key = dateKey(pt.date);
-      if (map.has(key)) lastVal = map.get(key);
-      series.push(lastVal);
+    const series = {};
+    for (const idx of INDICES) {
+      const raw = indexRaw[idx.symbol] || [];
+      if (!raw.length) { series[idx.symbol] = { pct: [], close: [] }; continue; }
+      let baseIdx = -1;
+      for (let i = 0; i < raw.length; i++) {
+        if (dateKey(raw[i].date) <= startKey) baseIdx = i;
+      }
+      if (baseIdx < 0) baseIdx = 0;
+      const baseClose = raw[baseIdx].close;
+      const pctMap = new Map();
+      const closeMap = new Map();
+      for (let i = baseIdx; i < raw.length; i++) {
+        const key = dateKey(raw[i].date);
+        pctMap.set(key, ((raw[i].close - baseClose) / baseClose) * 100);
+        closeMap.set(key, raw[i].close);
+      }
+      const pctArr = [];
+      const closeArr = [];
+      let lastPct = 0;
+      let lastClose = baseClose;
+      for (const pt of points) {
+        const key = dateKey(pt.date);
+        if (pctMap.has(key)) { lastPct = pctMap.get(key); lastClose = closeMap.get(key); }
+        pctArr.push(lastPct);
+        closeArr.push(lastClose);
+      }
+      series[idx.symbol] = { pct: pctArr, close: closeArr };
     }
     return series;
-  }, [hasData, points, spRaw]);
+  }, [hasData, points, indexRaw]);
 
   // Portfolio % return series
   const portPctSeries = useMemo(() => {
@@ -114,11 +138,14 @@ export default function FeaturedChart() {
     return points.map((p) => ((p.equity - base) / base) * 100);
   }, [points, hasData]);
 
-  // Compute unified Y scale across both series (% return)
+  // Compute unified Y scale across all series (% return)
   const chart = useMemo(() => {
     if (!hasData) return {};
     const allVals = [...portPctSeries];
-    if (spSeries.length) allVals.push(...spSeries);
+    for (const idx of INDICES) {
+      const s = indexSeries[idx.symbol];
+      if (s && s.pct.length) allVals.push(...s.pct);
+    }
     const mn = Math.min(...allVals);
     const mx = Math.max(...allVals);
     const yPad = (mx - mn) * 0.12 || 1;
@@ -134,19 +161,21 @@ export default function FeaturedChart() {
       series.map((v, i) => `${i === 0 ? 'M' : 'L'}${sx(i).toFixed(1)},${sy(v).toFixed(1)}`).join(' ');
 
     const portPath = buildPath(portPctSeries);
-    const spPath = spSeries.length === portPctSeries.length ? buildPath(spSeries) : null;
+    const indexPaths = {};
+    for (const idx of INDICES) {
+      const s = indexSeries[idx.symbol];
+      indexPaths[idx.symbol] = s && s.pct.length === portPctSeries.length ? buildPath(s.pct) : null;
+    }
 
-    return { yMin, yMax, sx, sy, portPath, spPath, plotW, plotH };
-  }, [hasData, portPctSeries, spSeries, points]);
+    return { yMin, yMax, sx, sy, portPath, indexPaths, plotW, plotH };
+  }, [hasData, portPctSeries, indexSeries, points]);
 
-  const { yMin, yMax, sx, sy, portPath, spPath } = chart;
+  const { yMin, yMax, sx, sy, portPath, indexPaths } = chart;
 
   const portReturn = hasData ? portPctSeries[portPctSeries.length - 1] : 0;
   const portDollarReturn = hasData ? points[points.length - 1].equity - points[0].equity : 0;
   const isPositive = portReturn >= 0;
   const portColor = isPositive ? 'var(--accent-green)' : 'var(--accent-red)';
-
-  const spReturn = spSeries.length ? spSeries[spSeries.length - 1] : null;
 
   // Y-axis ticks (% return)
   const yTicks = useMemo(() => {
@@ -187,11 +216,16 @@ export default function FeaturedChart() {
               <span className={`chart-stat-pct ${isPositive ? 'positive' : 'negative'}`}>
                 ({isPositive ? '+' : ''}{portReturn.toFixed(2)}%)
               </span>
-              {spReturn !== null && (
-                <span className="chart-stat-sp">
-                  S&amp;P: {spReturn >= 0 ? '+' : ''}{spReturn.toFixed(2)}%
-                </span>
-              )}
+              {INDICES.map((idx) => {
+                const s = indexSeries[idx.symbol];
+                if (!s || !s.pct.length) return null;
+                const ret = s.pct[s.pct.length - 1];
+                return (
+                  <span key={idx.symbol} className={`chart-stat-index chart-stat-${idx.cssClass}`}>
+                    {idx.label}: {ret >= 0 ? '+' : ''}{ret.toFixed(2)}%
+                  </span>
+                );
+              })}
             </div>
           )}
         </div>
@@ -293,9 +327,11 @@ export default function FeaturedChart() {
               fill="url(#eqFill)"
             />
 
-            {/* S&P line */}
-            {spPath && (
-              <path d={spPath} fill="none" stroke="var(--accent-blue)" strokeWidth="1.5" opacity="0.5" />
+            {/* Index lines */}
+            {indexPaths && INDICES.map((idx) =>
+              indexPaths[idx.symbol] ? (
+                <path key={idx.symbol} d={indexPaths[idx.symbol]} fill="none" stroke={idx.color} strokeWidth="1.5" opacity="0.5" />
+              ) : null
             )}
 
             {/* Portfolio line */}
@@ -321,17 +357,22 @@ export default function FeaturedChart() {
                   stroke="var(--bg-card)"
                   strokeWidth="2"
                 />
-                {spSeries.length > hoverIdx && (
-                  <circle
-                    cx={sx(hoverIdx)}
-                    cy={sy(spSeries[hoverIdx])}
-                    r="3"
-                    fill="var(--accent-blue)"
-                    stroke="var(--bg-card)"
-                    strokeWidth="1.5"
-                    opacity="0.7"
-                  />
-                )}
+                {INDICES.map((idx) => {
+                  const s = indexSeries[idx.symbol];
+                  if (!s || !s.pct.length || s.pct.length <= hoverIdx) return null;
+                  return (
+                    <circle
+                      key={idx.symbol}
+                      cx={sx(hoverIdx)}
+                      cy={sy(s.pct[hoverIdx])}
+                      r="3"
+                      fill={idx.color}
+                      stroke="var(--bg-card)"
+                      strokeWidth="1.5"
+                      opacity="0.7"
+                    />
+                  );
+                })}
               </>
             )}
           </svg>
@@ -350,11 +391,16 @@ export default function FeaturedChart() {
               <span className={`chart-tooltip-pnl ${portPctSeries[hoverIdx] >= 0 ? 'positive' : 'negative'}`}>
                 {portPctSeries[hoverIdx] >= 0 ? '+' : ''}{portPctSeries[hoverIdx].toFixed(2)}%
               </span>
-              {spSeries.length > hoverIdx && (
-                <span className="chart-tooltip-sp">
-                  S&amp;P: {spSeries[hoverIdx] >= 0 ? '+' : ''}{spSeries[hoverIdx].toFixed(2)}%
-                </span>
-              )}
+              {INDICES.map((idx) => {
+                const s = indexSeries[idx.symbol];
+                if (!s || !s.pct.length || s.pct.length <= hoverIdx) return null;
+                const close = s.close[hoverIdx];
+                return (
+                  <span key={idx.symbol} className={`chart-tooltip-index chart-tooltip-${idx.cssClass}`}>
+                    {idx.label}: {s.pct[hoverIdx] >= 0 ? '+' : ''}{s.pct[hoverIdx].toFixed(2)}% ({close.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                  </span>
+                );
+              })}
             </div>
           )}
 
@@ -364,10 +410,12 @@ export default function FeaturedChart() {
               <span className="chart-legend-swatch chart-legend-port" />
               Portfolio
             </span>
-            <span className="chart-legend-item">
-              <span className="chart-legend-swatch chart-legend-sp" />
-              S&amp;P 500
-            </span>
+            {INDICES.map((idx) => (
+              <span key={idx.symbol} className="chart-legend-item">
+                <span className={`chart-legend-swatch chart-legend-${idx.cssClass}`} />
+                {idx.label}
+              </span>
+            ))}
           </div>
         </div>
       ) : (
