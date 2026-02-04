@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useSyncExternalStore } from 'react';
 
 const STORAGE_KEY = 'monthlyPnl';
+const NOTES_KEY = 'pnlNotes';
 
 function loadPnlData() {
   try {
@@ -89,4 +90,17 @@ export function useEquityCurve(pnlData) {
   }, [pnlData]);
 }
 
-export { loadPnlData, savePnlData, getDaysInMonth, getMonthKey, STORAGE_KEY };
+function loadPnlNotes() {
+  try {
+    const stored = localStorage.getItem(NOTES_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePnlNotes(notes) {
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+}
+
+export { loadPnlData, savePnlData, getDaysInMonth, getMonthKey, loadPnlNotes, savePnlNotes, STORAGE_KEY };
