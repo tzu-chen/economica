@@ -1,7 +1,7 @@
 .featured-chart {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 2px;
   padding: 32px;
   margin-bottom: 30px;
 }
@@ -20,9 +20,9 @@
 }
 
 .chart-title {
-  font-family: 'Crimson Pro', serif;
+  font-family: 'Libre Baskerville', serif;
   font-size: 1.6em;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .chart-stats {
@@ -70,7 +70,7 @@
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-secondary);
-  border-radius: 6px;
+  border-radius: 2px;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.75em;
   cursor: pointer;
@@ -81,7 +81,7 @@
 .chart-btn.active {
   border-color: var(--accent-blue);
   color: var(--accent-blue);
-  background: rgba(68, 136, 255, 0.1);
+  background: rgba(2, 116, 182, 0.06);
 }
 
 /* SVG chart area */
@@ -99,13 +99,9 @@
 
 /* Empty state */
 .large-chart {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 255, 136, 0.03) 0%,
-    rgba(68, 136, 255, 0.03) 100%
-  );
+  background: rgba(0, 0, 0, 0.02);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 2px;
   aspect-ratio: 800 / 340;
   display: flex;
   align-items: center;
@@ -130,9 +126,9 @@
 .chart-tooltip {
   position: absolute;
   transform: translate(-50%, -120%);
-  background: var(--bg-dark);
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 8px 12px;
   pointer-events: none;
   display: flex;
@@ -140,6 +136,7 @@
   gap: 2px;
   white-space: nowrap;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .chart-tooltip-date {

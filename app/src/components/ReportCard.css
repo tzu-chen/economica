@@ -13,9 +13,9 @@
 .report-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 2px;
   padding: 28px;
-  transition: all 0.3s;
+  transition: all 0.2s;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 24px;
@@ -23,9 +23,8 @@
 }
 
 .report-card:hover {
-  border-color: var(--accent-blue);
-  transform: translateX(4px);
-  box-shadow: 0 8px 32px rgba(68, 136, 255, 0.15);
+  border-color: var(--text-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .report-main {
@@ -46,18 +45,18 @@
 
 .report-category {
   padding: 4px 10px;
-  background: rgba(68, 136, 255, 0.15);
-  border: 1px solid rgba(68, 136, 255, 0.3);
-  border-radius: 4px;
+  background: rgba(2, 116, 182, 0.08);
+  border: 1px solid rgba(2, 116, 182, 0.2);
+  border-radius: 2px;
   color: var(--accent-blue);
 }
 
 .report-title {
-  font-family: 'Crimson Pro', serif;
+  font-family: 'Libre Baskerville', serif;
   font-size: 1.4em;
   margin-bottom: 10px;
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
 }
 
@@ -76,17 +75,17 @@
 
 .tag {
   padding: 3px 10px;
-  background: rgba(139, 149, 168, 0.1);
+  background: rgba(0, 0, 0, 0.03);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 2px;
   font-size: 0.7em;
   font-family: 'IBM Plex Mono', monospace;
   color: var(--text-secondary);
 }
 
 .tag-ticker {
-  background: rgba(0, 255, 136, 0.08);
-  border-color: rgba(0, 255, 136, 0.25);
+  background: rgba(53, 122, 56, 0.06);
+  border-color: rgba(53, 122, 56, 0.2);
   color: var(--accent-green);
 }
 
@@ -118,36 +117,32 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.02);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 2px;
   color: var(--text-secondary);
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .report-action-archive:hover {
-  background: rgba(255, 149, 0, 0.1);
-  border-color: rgba(255, 149, 0, 0.3);
+  background: rgba(199, 119, 0, 0.08);
+  border-color: rgba(199, 119, 0, 0.3);
   color: var(--accent-orange);
 }
 
 .report-action-delete:hover {
-  background: rgba(255, 68, 102, 0.1);
-  border-color: rgba(255, 68, 102, 0.3);
+  background: rgba(196, 18, 0, 0.08);
+  border-color: rgba(196, 18, 0, 0.3);
   color: var(--accent-red);
 }
 
 .report-chart {
   width: 180px;
   height: 100px;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 255, 136, 0.05) 0%,
-    rgba(68, 136, 255, 0.05) 100%
-  );
+  background: rgba(0, 0, 0, 0.02);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
