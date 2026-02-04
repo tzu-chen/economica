@@ -1,33 +1,37 @@
 .data-strip {
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  padding: 24px 32px;
-  margin-bottom: 30px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 24px;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .data-metric {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.data-metric + .data-metric {
+  margin-left: 12px;
 }
 
 .data-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.7em;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.82em;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .data-value {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.4em;
+  font-size: 0.82em;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .data-value.positive {
@@ -43,17 +47,10 @@
 }
 
 .data-value.last-update {
-  font-size: 0.9em;
+  font-size: 0.8em;
   color: var(--text-secondary);
 }
 
 .data-change {
-  font-size: 0.75em;
-  color: var(--text-secondary);
-}
-
-@media (max-width: 1200px) {
-  .data-strip {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
+  font-size: 0.9em;
 }

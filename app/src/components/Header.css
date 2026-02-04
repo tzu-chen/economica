@@ -1,36 +1,37 @@
 .header {
   background: var(--bg-card);
-  padding: 40px;
-  border-bottom: 3px double var(--border);
+  padding: 30px 40px 0;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 30px;
 }
 
 .header h1 {
   font-family: 'Libre Baskerville', serif;
-  font-size: 2.5em;
-  margin-bottom: 8px;
+  font-size: 2.8em;
+  margin-bottom: 6px;
   color: var(--text-primary);
 }
 
 .header p {
   color: var(--text-secondary);
+  font-size: 0.9em;
 }
 
 .header nav {
   display: flex;
-  gap: 30px;
+  gap: 28px;
   margin-top: 20px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.85em;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.9em;
   border-top: 1px solid var(--border);
-  padding-top: 16px;
+  padding: 14px 0;
+  justify-content: center;
 }
 
 .header nav a {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.3px;
   transition: color 0.2s;
 }
 
@@ -40,14 +41,22 @@
 
 /* Header top row layout */
 .header-top {
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-center {
+  text-align: center;
 }
 
 /* Notification bell */
 .truth-bell {
-  position: relative;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .bell-btn {
