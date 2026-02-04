@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
-import { loadPnlData, savePnlData, getDaysInMonth, getMonthKey } from '../hooks/usePnlData';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { loadPnlData, savePnlData, getDaysInMonth, getMonthKey, loadPnlNotes, savePnlNotes } from '../hooks/usePnlData';
 import './Pnl.css';
 
 function buildMonthOptions() {
@@ -31,6 +31,11 @@ export default function Pnl() {
 
   const [balanceInput, setBalanceInput] = useState('');
   const [editingBalance, setEditingBalance] = useState(false);
+
+  const [notes, setNotes] = useState(loadPnlNotes);
+  const [noteDay, setNoteDay] = useState(null);
+  const [noteValue, setNoteValue] = useState('');
+  const noteRef = useRef(null);
 
   const monthKey = getMonthKey(year, month);
   const monthData = data[monthKey] || {};
@@ -139,6 +144,45 @@ export default function Pnl() {
     }
   }, [saveEdit]);
 
+  const monthNotes = notes[monthKey] || {};
+
+  const openNote = useCallback((day, e) => {
+    e.stopPropagation();
+    setNoteDay(day);
+    setNoteValue(monthNotes[day] || '');
+  }, [monthNotes]);
+
+  const saveNote = useCallback(() => {
+    if (noteDay === null) return;
+    const next = { ...notes };
+    const trimmed = noteValue.trim();
+    if (trimmed === '') {
+      if (next[monthKey]) {
+        delete next[monthKey][noteDay];
+        if (Object.keys(next[monthKey]).length === 0) delete next[monthKey];
+      }
+    } else {
+      if (!next[monthKey]) next[monthKey] = {};
+      next[monthKey][noteDay] = trimmed;
+    }
+    setNotes(next);
+    savePnlNotes(next);
+    setNoteDay(null);
+    setNoteValue('');
+  }, [noteDay, noteValue, notes, monthKey]);
+
+  // Close note popup on outside click
+  useEffect(() => {
+    if (noteDay === null) return;
+    const handleClick = (e) => {
+      if (noteRef.current && !noteRef.current.contains(e.target)) {
+        saveNote();
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [noteDay, saveNote]);
+
   const formatPnl = (val) => {
     if (val === undefined || val === null || val === '') return '';
     const n = Number(val);
@@ -220,13 +264,41 @@ export default function Pnl() {
           {days.map((day) => {
             const val = monthData[day];
             const isEditing = editingDay === day;
+            const hasNote = !!monthNotes[day];
+            const isNoteOpen = noteDay === day;
             return (
               <div
                 key={day}
                 className={`pnl-cell ${pnlClass(val)} ${isEditing ? 'pnl-cell-editing' : ''}`}
                 onClick={() => !isEditing && startEdit(day)}
               >
-                <span className="pnl-cell-day">{day}</span>
+                <div className="pnl-cell-top">
+                  <span className="pnl-cell-day">{day}</span>
+                  <button
+                    className={`pnl-note-btn${hasNote ? ' has-note' : ''}`}
+                    title={hasNote ? 'Edit note' : 'Add note'}
+                    onClick={(e) => openNote(day, e)}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 1l1 1-9 9-3 1 1-3 9-9zM2 14h12" />
+                    </svg>
+                  </button>
+                </div>
+                {isNoteOpen && (
+                  <div className="pnl-note-popup" ref={noteRef} onClick={(e) => e.stopPropagation()}>
+                    <textarea
+                      className="pnl-note-textarea"
+                      autoFocus
+                      placeholder="Add a note..."
+                      value={noteValue}
+                      onChange={(e) => setNoteValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') { setNoteDay(null); setNoteValue(''); }
+                      }}
+                    />
+                    <button className="pnl-note-save" onClick={saveNote}>Done</button>
+                  </div>
+                )}
                 {isEditing ? (
                   <input
                     className="pnl-cell-input"
