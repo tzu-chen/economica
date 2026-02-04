@@ -1,15 +1,15 @@
 .header {
-  background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
+  background: var(--bg-card);
   padding: 40px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  border-bottom: 3px double var(--border);
   margin-bottom: 30px;
 }
 
 .header h1 {
-  font-family: 'Crimson Pro', serif;
+  font-family: 'Libre Baskerville', serif;
   font-size: 2.5em;
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .header p {
@@ -22,6 +22,8 @@
   margin-top: 20px;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.85em;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
 }
 
 .header nav a {
@@ -33,7 +35,7 @@
 }
 
 .header nav a:hover {
-  color: var(--accent-green);
+  color: var(--accent-blue);
 }
 
 /* Header top row layout */
@@ -51,7 +53,7 @@
 .bell-btn {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 2px;
   color: var(--text-secondary);
   cursor: pointer;
   padding: 8px 10px;
@@ -104,10 +106,10 @@
   width: 360px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 2px;
   z-index: 100;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .truth-dropdown-header {
@@ -126,8 +128,8 @@
 .truth-toggle {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--accent-green);
+  border-radius: 2px;
+  color: var(--accent-blue);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.85em;
   padding: 2px 8px;
@@ -137,7 +139,7 @@
 }
 
 .truth-toggle:hover {
-  border-color: var(--accent-green);
+  border-color: var(--accent-blue);
 }
 
 .truth-empty {
@@ -171,7 +173,7 @@
 }
 
 .truth-posts li a:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .truth-post-text {
