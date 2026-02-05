@@ -7,7 +7,13 @@ function TickerChange({ value }) {
   if (value == null) return null;
   const sign = value >= 0 ? '+' : '';
   const cls = value >= 0 ? 'rv-ticker-up' : 'rv-ticker-down';
-  return <span className={`rv-ticker-change ${cls}`}>{sign}{value.toFixed(1)}%</span>;
+  const arrow = value >= 0 ? '\u25B2' : '\u25BC';
+  return (
+    <span className={`rv-ticker-change ${cls}`}>
+      {sign}{value.toFixed(1)}%
+      <span className="rv-ticker-arrow">{arrow}</span>
+    </span>
+  );
 }
 
 export default function ReportView() {

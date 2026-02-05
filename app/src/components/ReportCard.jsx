@@ -6,7 +6,13 @@ function TickerChange({ value }) {
   if (value == null) return null;
   const sign = value >= 0 ? '+' : '';
   const cls = value >= 0 ? 'ticker-change-up' : 'ticker-change-down';
-  return <span className={`ticker-change ${cls}`}>{sign}{value.toFixed(1)}%</span>;
+  const arrow = value >= 0 ? '\u25B2' : '\u25BC';
+  return (
+    <span className={`ticker-change ${cls}`}>
+      {sign}{value.toFixed(1)}%
+      <span className="ticker-arrow">{arrow}</span>
+    </span>
+  );
 }
 
 export default function ReportCard({ report, onArchive, onDelete }) {
