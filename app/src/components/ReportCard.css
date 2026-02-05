@@ -103,6 +103,13 @@
   color: var(--accent-red);
 }
 
+.ticker-arrow {
+  display: inline-block;
+  font-size: 0.6em;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
 .report-actions {
   display: flex;
   flex-direction: column;

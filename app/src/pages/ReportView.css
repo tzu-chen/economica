@@ -146,6 +146,13 @@
   color: var(--accent-red);
 }
 
+.rv-ticker-arrow {
+  display: inline-block;
+  font-size: 0.6em;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
 /* Report body content */
 .rv-content {
   color: var(--text-primary);
