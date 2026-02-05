@@ -84,9 +84,16 @@
 }
 
 .tag-ticker {
-  background: rgba(53, 122, 56, 0.06);
-  border-color: rgba(53, 122, 56, 0.2);
-  color: var(--accent-green);
+  background: none;
+  border: none;
+  padding: 3px 0;
+  color: var(--text-primary);
+  font-weight: 700;
+  border-bottom: 2px solid var(--accent-green);
+}
+
+.tag-ticker.ticker-down {
+  border-bottom-color: var(--accent-red);
 }
 
 .ticker-change {

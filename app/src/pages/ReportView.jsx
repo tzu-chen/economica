@@ -66,12 +66,16 @@ export default function ReportView() {
 
       {report.tickers && report.tickers.length > 0 && (
         <div className="rv-chips">
-          {report.tickers.map((ticker) => (
-            <span key={ticker} className="rv-chip rv-chip-ticker">
-              ${ticker}
-              <TickerChange value={tickerChanges.get(ticker)} />
-            </span>
-          ))}
+          {report.tickers.map((ticker) => {
+            const change = tickerChanges.get(ticker);
+            const dirCls = change != null && change < 0 ? ' rv-ticker-down' : '';
+            return (
+              <span key={ticker} className={`rv-chip rv-chip-ticker${dirCls}`}>
+                ${ticker}
+                <TickerChange value={change} />
+              </span>
+            );
+          })}
         </div>
       )}
 

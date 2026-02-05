@@ -48,12 +48,16 @@ export default function ReportCard({ report, onArchive, onDelete }) {
         )}
         {report.tickers && report.tickers.length > 0 && (
           <div className="report-tags" style={{ marginTop: 6 }}>
-            {report.tickers.map((ticker) => (
-              <span key={ticker} className="tag tag-ticker">
-                ${ticker}
-                <TickerChange value={tickerChanges.get(ticker)} />
-              </span>
-            ))}
+            {report.tickers.map((ticker) => {
+              const change = tickerChanges.get(ticker);
+              const dirCls = change != null && change < 0 ? ' ticker-down' : '';
+              return (
+                <span key={ticker} className={`tag tag-ticker${dirCls}`}>
+                  ${ticker}
+                  <TickerChange value={change} />
+                </span>
+              );
+            })}
           </div>
         )}
       </div>
