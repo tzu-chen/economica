@@ -12,11 +12,15 @@ export default function DataStrip({ metrics, lastUpdate }) {
     <div className="data-strip">
       {metrics.map((m) => (
         <div className="data-metric" key={m.label}>
-          <div className="data-label">{m.label}</div>
-          <div className={`data-value ${m.status}`}>
-            {m.value}
-            {m.change && <span className="data-change"> {m.change}</span>}
-          </div>
+          <span className="data-label">{m.label}</span>
+          <span className="data-value">{m.value}</span>
+          {m.change && (
+            <span className={`data-change ${m.status}`}>
+              {m.change}
+              {m.status === 'positive' && <span className="data-arrow positive">&#9650;</span>}
+              {m.status === 'negative' && <span className="data-arrow negative">&#9660;</span>}
+            </span>
+          )}
         </div>
       ))}
       <div className="data-metric">

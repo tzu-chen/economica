@@ -12,7 +12,7 @@
 
 .data-metric {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 5px;
 }
 
@@ -23,34 +23,53 @@
 .data-label {
   font-family: 'Source Sans 3', sans-serif;
   font-size: 0.82em;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
 .data-value {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Source Sans 3', sans-serif;
   font-size: 0.82em;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
-}
-
-.data-value.positive {
-  color: var(--accent-green);
-}
-
-.data-value.negative {
-  color: var(--accent-red);
-}
-
-.data-value.neutral {
-  color: var(--accent-blue);
 }
 
 .data-value.last-update {
   font-size: 0.8em;
+  font-weight: 400;
   color: var(--text-secondary);
 }
 
 .data-change {
-  font-size: 0.9em;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.82em;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.data-change.positive {
+  color: var(--accent-green);
+}
+
+.data-change.negative {
+  color: var(--accent-red);
+}
+
+.data-change.neutral {
+  color: var(--text-secondary);
+}
+
+.data-arrow {
+  display: inline-block;
+  font-size: 0.55em;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
+.data-arrow.positive {
+  color: var(--accent-green);
+}
+
+.data-arrow.negative {
+  color: var(--accent-red);
 }
