@@ -16,6 +16,10 @@
   --text-primary: #111111;
   --text-secondary: #555555;
   --border: #d4d0c8;
+  /* Market index colors */
+  --index-nasdaq: #8b5cf6;
+  --index-dow: #d97706;
+  --index-russell: #059669;
 }
 
 body {

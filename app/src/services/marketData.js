@@ -69,15 +69,16 @@ export async function fetchMarketMetrics() {
 }
 
 /**
- * Fetch historical daily closes for S&P 500 over a given range.
+ * Fetch historical daily closes for a given index symbol over a range.
+ * symbol: Yahoo Finance symbol (e.g., '^GSPC', '^IXIC', '^DJI', '^RUT')
  * range: '1mo','3mo','6mo','1y','5y','max'
  * Returns array of { date: Date, close: number } sorted chronologically.
  */
-export async function fetchSPHistory(range = '1y') {
+export async function fetchIndexHistory(symbol, range = '1y') {
   const res = await fetch(
-    `${CHART_BASE}/%5EGSPC?range=${range}&interval=1d`,
+    `${CHART_BASE}/${encodeURIComponent(symbol)}?range=${range}&interval=1d`,
   );
-  if (!res.ok) throw new Error(`Yahoo Finance ${res.status} for ^GSPC history`);
+  if (!res.ok) throw new Error(`Yahoo Finance ${res.status} for ${symbol} history`);
   const json = await res.json();
   const result = json.chart.result[0];
   const timestamps = result.timestamp || [];
@@ -89,6 +90,15 @@ export async function fetchSPHistory(range = '1y') {
     }
   }
   return points;
+}
+
+/**
+ * Fetch historical daily closes for S&P 500 over a given range.
+ * range: '1mo','3mo','6mo','1y','5y','max'
+ * Returns array of { date: Date, close: number } sorted chronologically.
+ */
+export async function fetchSPHistory(range = '1y') {
+  return fetchIndexHistory('^GSPC', range);
 }
 
 /**
