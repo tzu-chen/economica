@@ -173,6 +173,28 @@
   opacity: 0.8;
 }
 
+.chart-tooltip-index {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7em;
+  opacity: 0.9;
+}
+
+.chart-tooltip-sp {
+  color: var(--accent-blue);
+}
+
+.chart-tooltip-nasdaq {
+  color: var(--index-nasdaq);
+}
+
+.chart-tooltip-dow {
+  color: var(--index-dow);
+}
+
+.chart-tooltip-russell {
+  color: var(--index-russell);
+}
+
 /* Legend */
 .chart-legend {
   display: flex;
@@ -203,5 +225,20 @@
 
 .chart-legend-sp {
   background: var(--accent-blue);
+  opacity: 0.5;
+}
+
+.chart-legend-nasdaq {
+  background: var(--index-nasdaq);
+  opacity: 0.5;
+}
+
+.chart-legend-dow {
+  background: var(--index-dow);
+  opacity: 0.5;
+}
+
+.chart-legend-russell {
+  background: var(--index-russell);
   opacity: 0.5;
 }
