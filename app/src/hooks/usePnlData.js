@@ -103,4 +103,51 @@ function savePnlNotes(notes) {
   localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
 }
 
-export { loadPnlData, savePnlData, getDaysInMonth, getMonthKey, loadPnlNotes, savePnlNotes, STORAGE_KEY };
+function exportPnlData() {
+  const data = loadPnlData();
+  const notes = loadPnlNotes();
+  const payload = { pnlData: data, pnlNotes: notes, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `pnl-export-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importPnlData() {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) { reject(new Error('No file selected')); return; }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const payload = JSON.parse(ev.target.result);
+          if (!payload.pnlData || typeof payload.pnlData !== 'object') {
+            reject(new Error('Invalid file: missing pnlData'));
+            return;
+          }
+          savePnlData(payload.pnlData);
+          if (payload.pnlNotes && typeof payload.pnlNotes === 'object') {
+            savePnlNotes(payload.pnlNotes);
+          }
+          resolve(payload);
+        } catch (err) {
+          reject(new Error('Failed to parse file: ' + err.message));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    };
+    input.click();
+  });
+}
+
+export { loadPnlData, savePnlData, getDaysInMonth, getMonthKey, loadPnlNotes, savePnlNotes, exportPnlData, importPnlData, STORAGE_KEY };

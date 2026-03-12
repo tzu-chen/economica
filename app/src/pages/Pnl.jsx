@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { loadPnlData, savePnlData, getDaysInMonth, getMonthKey, loadPnlNotes, savePnlNotes } from '../hooks/usePnlData';
+import { loadPnlData, savePnlData, getDaysInMonth, getMonthKey, loadPnlNotes, savePnlNotes, exportPnlData, importPnlData } from '../hooks/usePnlData';
 import { marked } from 'marked';
 import './Pnl.css';
 
@@ -152,6 +152,17 @@ export default function Pnl() {
     }
   }, [saveEdit]);
 
+  const handleImport = useCallback(() => {
+    importPnlData()
+      .then((payload) => {
+        setData(payload.pnlData);
+        if (payload.pnlNotes) setNotes(payload.pnlNotes);
+      })
+      .catch((err) => {
+        if (err.message !== 'No file selected') alert(err.message);
+      });
+  }, []);
+
   const monthNotes = notes[monthKey] || {};
 
   const openNote = useCallback((day, e) => {
@@ -214,17 +225,31 @@ export default function Pnl() {
     <div className="pnl-page">
       <div className="pnl-header">
         <h2>Monthly P&L</h2>
-        <select
-          className="pnl-month-select"
-          value={`${year}-${month}`}
-          onChange={handleMonthChange}
-        >
-          {monthOptions.map((opt) => (
-            <option key={`${opt.year}-${opt.month}`} value={`${opt.year}-${opt.month}`}>
-              {MONTH_NAMES[opt.month]} {opt.year}
-            </option>
-          ))}
-        </select>
+        <div className="pnl-header-actions">
+          <button className="pnl-action-btn" onClick={exportPnlData} title="Export P&L data">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 2v9M4 7l4 4 4-4M2 13h12" />
+            </svg>
+            Export
+          </button>
+          <button className="pnl-action-btn" onClick={handleImport} title="Import P&L data">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 11V2M4 6l4-4 4 4M2 13h12" />
+            </svg>
+            Import
+          </button>
+          <select
+            className="pnl-month-select"
+            value={`${year}-${month}`}
+            onChange={handleMonthChange}
+          >
+            {monthOptions.map((opt) => (
+              <option key={`${opt.year}-${opt.month}`} value={`${opt.year}-${opt.month}`}>
+                {MONTH_NAMES[opt.month]} {opt.year}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="pnl-summary">
