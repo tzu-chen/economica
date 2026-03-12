@@ -15,6 +15,34 @@
   color: var(--text-primary);
 }
 
+.pnl-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pnl-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 9px 14px;
+  color: var(--text-secondary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78em;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.pnl-action-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+  background: rgba(68, 136, 255, 0.06);
+}
+
 .pnl-month-select {
   background: var(--bg-card);
   border: 1px solid var(--border);
