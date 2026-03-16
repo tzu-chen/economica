@@ -55,7 +55,7 @@ export default function Header() {
     <div className="header">
       <div className="header-top">
         <div className="header-center">
-          <h1>Market Intelligence</h1>
+          <h1>Economica</h1>
           <p>Quantitative analysis &amp; derivatives strategy</p>
         </div>
         <div className="truth-bell" ref={dropdownRef}>
