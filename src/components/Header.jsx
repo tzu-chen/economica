@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import useTruthSocial, {
   requestNotificationPermission,
 } from '../hooks/useTruthSocial';
+import { exportAllData, importAllData } from '../services/dataExport';
 import './Header.css';
 
 const NAV_LINKS = [
@@ -29,6 +30,8 @@ export default function Header() {
     useTruthSocial();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [gearOpen, setGearOpen] = useState(false);
+  const gearRef = useRef(null);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -40,6 +43,34 @@ export default function Header() {
     if (dropdownOpen) document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [dropdownOpen]);
+
+  // Close gear dropdown on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (gearRef.current && !gearRef.current.contains(e.target)) {
+        setGearOpen(false);
+      }
+    }
+    if (gearOpen) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [gearOpen]);
+
+  function handleExport() {
+    exportAllData();
+    setGearOpen(false);
+  }
+
+  async function handleImport() {
+    try {
+      const result = await importAllData();
+      alert(`Imported ${result.keysImported.length} data sets. ${result.keysSkipped.length} skipped.`);
+    } catch (err) {
+      if (err.message !== 'Import cancelled') {
+        alert('Import failed: ' + err.message);
+      }
+    }
+    setGearOpen(false);
+  }
 
   async function handleBellClick() {
     if (!enabled) {
@@ -57,6 +88,38 @@ export default function Header() {
         <div className="header-center">
           <h1>Economica</h1>
           <p>Quantitative analysis &amp; derivatives strategy</p>
+        </div>
+        <div className="gear-menu" ref={gearRef}>
+          <button
+            className="gear-btn"
+            onClick={() => setGearOpen((prev) => !prev)}
+            title="Settings"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+
+          {gearOpen && (
+            <div className="gear-dropdown">
+              <button className="gear-dropdown-item" onClick={handleExport}>
+                Export All Data
+              </button>
+              <button className="gear-dropdown-item" onClick={handleImport}>
+                Import All Data
+              </button>
+            </div>
+          )}
         </div>
         <div className="truth-bell" ref={dropdownRef}>
           <button
