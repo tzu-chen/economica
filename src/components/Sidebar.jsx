@@ -2,7 +2,10 @@ import { useState } from 'react';
 import useWatchlist from '../hooks/useWatchlist';
 import './Sidebar.css';
 
-function WatchlistRow({ item, priceData, onRemove, onUpdateLimits }) {
+const NEW_GROUP_VALUE = '__new__';
+const REMOVE_GROUP_VALUE = '__remove__';
+
+function WatchlistRow({ item, priceData, groups, onRemove, onUpdateLimits, onAssignGroup }) {
   const [editing, setEditing] = useState(false);
   const [upper, setUpper] = useState(item.upperLimit);
   const [lower, setLower] = useState(item.lowerLimit);
@@ -32,6 +35,25 @@ function WatchlistRow({ item, priceData, onRemove, onUpdateLimits }) {
     setEditing(false);
   }
 
+  function handleGroupSelect(e) {
+    const value = e.target.value;
+    e.target.value = '';
+    if (!value) return;
+    if (value === NEW_GROUP_VALUE) {
+      const name = prompt('New group name:');
+      const trimmed = (name || '').trim();
+      if (trimmed) onAssignGroup(item.symbol, trimmed);
+      return;
+    }
+    if (value === REMOVE_GROUP_VALUE) {
+      onAssignGroup(item.symbol, '');
+      return;
+    }
+    onAssignGroup(item.symbol, value);
+  }
+
+  const otherGroups = groups.filter((g) => g !== item.group);
+
   return (
     <div className={`watchlist-row${highlighted ? ' watchlist-row--alert' : ''}`}>
       <div className="watchlist-row-main">
@@ -51,8 +73,26 @@ function WatchlistRow({ item, priceData, onRemove, onUpdateLimits }) {
           )}
         </div>
         <div className="watchlist-actions">
+          <div className="watchlist-group-assign">
+            <button className="watchlist-edit-btn" title="Assign group" tabIndex={-1} aria-hidden="true">
+              &#128193;
+            </button>
+            <select
+              value=""
+              onChange={handleGroupSelect}
+              className="watchlist-group-select"
+              aria-label={`Assign group for ${item.symbol}`}
+            >
+              <option value="" disabled hidden>Group</option>
+              {otherGroups.map((g) => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+              <option value={NEW_GROUP_VALUE}>+ New group…</option>
+              {item.group && <option value={REMOVE_GROUP_VALUE}>Remove from group</option>}
+            </select>
+          </div>
           <button className="watchlist-edit-btn" onClick={() => setEditing(!editing)} title="Set limits">
-            {editing ? '...' : '\u2699'}
+            {editing ? '...' : '⚙'}
           </button>
           <button className="watchlist-remove-btn" onClick={() => onRemove(item.symbol)} title="Remove">
             &times;
@@ -60,7 +100,6 @@ function WatchlistRow({ item, priceData, onRemove, onUpdateLimits }) {
         </div>
       </div>
 
-      {/* Limit display */}
       {!editing && (upperNum != null || lowerNum != null) && (
         <div className="watchlist-limits-display">
           {lowerNum != null && (
@@ -76,7 +115,6 @@ function WatchlistRow({ item, priceData, onRemove, onUpdateLimits }) {
         </div>
       )}
 
-      {/* Limit editor */}
       {editing && (
         <div className="watchlist-limit-editor">
           <div className="limit-field">
@@ -109,15 +147,155 @@ function WatchlistRow({ item, priceData, onRemove, onUpdateLimits }) {
   );
 }
 
+function WatchlistGroup({ name, items, prices, collapsed, onToggle, ...rowProps }) {
+  return (
+    <div className="watchlist-group">
+      <button
+        type="button"
+        className={`watchlist-group-header${collapsed ? ' collapsed' : ''}`}
+        onClick={onToggle}
+      >
+        <span className="watchlist-group-chevron">▾</span>
+        <span className="watchlist-group-name">{name}</span>
+        <span className="watchlist-group-count">{items.length}</span>
+      </button>
+      {!collapsed && (
+        <div className="watchlist-group-items">
+          {items.map((item) => (
+            <WatchlistRow
+              key={item.symbol}
+              item={item}
+              priceData={prices.get(item.symbol)}
+              {...rowProps}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ManageGroups({ groups, onRename, onRemove, onClose }) {
+  const [editing, setEditing] = useState(null);
+  const [draft, setDraft] = useState('');
+
+  function startRename(name) {
+    setEditing(name);
+    setDraft(name);
+  }
+
+  function commitRename() {
+    if (editing && draft.trim() && draft.trim() !== editing) {
+      onRename(editing, draft.trim());
+    }
+    setEditing(null);
+    setDraft('');
+  }
+
+  return (
+    <div className="watchlist-manage-groups">
+      <div className="watchlist-manage-header">
+        <span>Manage groups</span>
+        <button className="watchlist-manage-close" onClick={onClose} title="Close">
+          &times;
+        </button>
+      </div>
+      {groups.length === 0 ? (
+        <p className="watchlist-manage-empty">No groups yet. Use a row&rsquo;s folder menu to create one.</p>
+      ) : (
+        <ul className="watchlist-manage-list">
+          {groups.map((g) => (
+            <li key={g} className="watchlist-manage-item">
+              {editing === g ? (
+                <>
+                  <input
+                    className="watchlist-manage-input"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitRename();
+                      if (e.key === 'Escape') {
+                        setEditing(null);
+                        setDraft('');
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <button className="watchlist-manage-btn" onClick={commitRename}>Save</button>
+                  <button
+                    className="watchlist-manage-btn secondary"
+                    onClick={() => {
+                      setEditing(null);
+                      setDraft('');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="watchlist-manage-name">{g}</span>
+                  <button className="watchlist-manage-btn" onClick={() => startRename(g)}>Rename</button>
+                  <button
+                    className="watchlist-manage-btn danger"
+                    onClick={() => {
+                      if (confirm(`Remove group "${g}"? Symbols will become ungrouped.`)) {
+                        onRemove(g);
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function Sidebar() {
-  const { items, prices, addSymbol, removeSymbol, updateLimits } = useWatchlist();
+  const {
+    items,
+    prices,
+    groups,
+    addSymbol,
+    removeSymbol,
+    updateLimits,
+    updateGroup,
+    renameGroup,
+    removeGroup,
+  } = useWatchlist();
+
   const [input, setInput] = useState('');
+  const [collapsed, setCollapsed] = useState({});
+  const [managing, setManaging] = useState(false);
 
   function handleAdd(e) {
     e.preventDefault();
     addSymbol(input);
     setInput('');
   }
+
+  const toggleCollapse = (name) => {
+    setCollapsed((prev) => ({ ...prev, [name]: !prev[name] }));
+  };
+
+  const ungrouped = items.filter((i) => !i.group);
+  const grouped = groups.map((g) => ({
+    name: g,
+    items: items.filter((i) => i.group === g),
+  }));
+
+  const rowProps = {
+    groups,
+    prices,
+    onRemove: removeSymbol,
+    onUpdateLimits: updateLimits,
+    onAssignGroup: updateGroup,
+  };
 
   return (
     <div className="sidebar">
@@ -137,19 +315,58 @@ export default function Sidebar() {
           </button>
         </form>
 
+        {(groups.length > 0 || managing) && (
+          <div className="watchlist-manage-toggle">
+            <button
+              type="button"
+              className="watchlist-manage-link"
+              onClick={() => setManaging((v) => !v)}
+            >
+              {managing ? 'Hide groups' : 'Manage groups'}
+            </button>
+          </div>
+        )}
+
+        {managing && (
+          <ManageGroups
+            groups={groups}
+            onRename={renameGroup}
+            onRemove={removeGroup}
+            onClose={() => setManaging(false)}
+          />
+        )}
+
         {items.length === 0 ? (
           <p className="watchlist-empty">No symbols added yet.</p>
         ) : (
           <div className="watchlist-list">
-            {items.map((item) => (
-              <WatchlistRow
-                key={item.symbol}
-                item={item}
-                priceData={prices.get(item.symbol)}
-                onRemove={removeSymbol}
-                onUpdateLimits={updateLimits}
+            {grouped.map((g) => (
+              <WatchlistGroup
+                key={g.name}
+                name={g.name}
+                items={g.items}
+                prices={prices}
+                collapsed={!!collapsed[g.name]}
+                onToggle={() => toggleCollapse(g.name)}
+                {...rowProps}
               />
             ))}
+
+            {ungrouped.length > 0 && (
+              <div className="watchlist-ungrouped">
+                {grouped.length > 0 && (
+                  <div className="watchlist-ungrouped-label">Ungrouped</div>
+                )}
+                {ungrouped.map((item) => (
+                  <WatchlistRow
+                    key={item.symbol}
+                    item={item}
+                    priceData={prices.get(item.symbol)}
+                    {...rowProps}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

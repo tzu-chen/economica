@@ -1,24 +1,12 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 import { useReports } from '../context/ReportsContext';
 import './ReportWriter.css';
 
 const CATEGORIES = ['Equities', 'Fixed Income', 'Commodities', 'Options', 'Strategy', 'Macro'];
-
-const FORMATTING_BUTTONS = [
-  { command: 'bold', icon: 'B', title: 'Bold', className: 'fmt-bold' },
-  { command: 'italic', icon: 'I', title: 'Italic', className: 'fmt-italic' },
-  { command: 'underline', icon: 'U', title: 'Underline', className: 'fmt-underline' },
-  { command: 'strikeThrough', icon: 'S', title: 'Strikethrough', className: 'fmt-strike' },
-];
-
-const BLOCK_FORMATS = [
-  { value: 'p', label: 'Paragraph' },
-  { value: 'h2', label: 'Heading 2' },
-  { value: 'h3', label: 'Heading 3' },
-  { value: 'h4', label: 'Heading 4' },
-  { value: 'blockquote', label: 'Blockquote' },
-];
 
 const DRAFTS_KEY = 'reportDrafts';
 
@@ -49,13 +37,24 @@ export default function ReportWriter() {
   const [drafts, setDrafts] = useState(loadDrafts);
   const [activeDraftId, setActiveDraftId] = useState(null);
   const [savedMessage, setSavedMessage] = useState('');
-  const editorRef = useRef(null);
   const fileInputRef = useRef(null);
   const initializedRef = useRef(false);
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [2, 3, 4] },
+        link: { openOnClick: false },
+      }),
+      Placeholder.configure({ placeholder: 'Start writing your report...' }),
+    ],
+    content: '',
+    shouldRerenderOnTransaction: true,
+  });
+
   // Pre-fill fields when editing an existing report
   useEffect(() => {
-    if (!editId || initializedRef.current) return;
+    if (!editId || !editor || initializedRef.current) return;
     const existing = getReport(editId);
     if (!existing) return;
     initializedRef.current = true;
@@ -71,25 +70,10 @@ export default function ReportWriter() {
         name: '',
       })),
     );
-    if (editorRef.current && existing.content) {
-      editorRef.current.innerHTML = existing.content;
+    if (existing.content) {
+      editor.commands.setContent(existing.content);
     }
-  }, [editId, getReport]);
-
-  const execCommand = useCallback((command, value = null) => {
-    document.execCommand(command, false, value);
-    editorRef.current?.focus();
-  }, []);
-
-  const handleBlockFormat = useCallback((e) => {
-    const tag = e.target.value;
-    if (tag === 'blockquote') {
-      document.execCommand('formatBlock', false, 'blockquote');
-    } else {
-      document.execCommand('formatBlock', false, tag);
-    }
-    editorRef.current?.focus();
-  }, []);
+  }, [editId, editor, getReport]);
 
   const handleAddTag = useCallback((e) => {
     if (e.key === 'Enter' && tagInput.trim()) {
@@ -146,15 +130,20 @@ export default function ReportWriter() {
   }, []);
 
   const handleInsertLink = useCallback(() => {
-    const url = prompt('Enter URL:');
-    if (url) {
-      execCommand('createLink', url);
+    if (!editor) return;
+    const prev = editor.getAttributes('link').href || '';
+    const url = prompt('Enter URL:', prev);
+    if (url === null) return;
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
     }
-  }, [execCommand]);
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  }, [editor]);
 
   const buildReportData = useCallback(() => {
-    const content = editorRef.current?.innerHTML || '';
-    const plainText = editorRef.current?.innerText || '';
+    const content = editor?.getHTML() || '';
+    const plainText = editor?.getText() || '';
     const excerpt =
       plainText.length > 200 ? plainText.slice(0, 200) + '...' : plainText;
     return {
@@ -171,7 +160,7 @@ export default function ReportWriter() {
         day: 'numeric',
       }),
     };
-  }, [title, category, tags, tickers, images]);
+  }, [editor, title, category, tags, tickers, images]);
 
   const handlePublish = useCallback(() => {
     if (!title.trim()) {
@@ -188,7 +177,7 @@ export default function ReportWriter() {
   }, [title, editId, buildReportData, publish, update, navigate]);
 
   const handleSaveDraft = useCallback(() => {
-    const content = editorRef.current?.innerHTML || '';
+    const content = editor?.getHTML() || '';
     const now = new Date();
     const draft = {
       id: activeDraftId || Date.now().toString(),
@@ -214,7 +203,7 @@ export default function ReportWriter() {
     setActiveDraftId(draft.id);
     setSavedMessage('Draft saved');
     setTimeout(() => setSavedMessage(''), 2000);
-  }, [title, category, tags, tickers, images, activeDraftId]);
+  }, [editor, title, category, tags, tickers, images, activeDraftId]);
 
   const handleLoadDraft = useCallback((draft) => {
     setTitle(draft.title || '');
@@ -229,11 +218,11 @@ export default function ReportWriter() {
         name: img.name || '',
       })),
     );
-    if (editorRef.current) {
-      editorRef.current.innerHTML = draft.content || '';
+    if (editor) {
+      editor.commands.setContent(draft.content || '');
     }
     setActiveDraftId(draft.id);
-  }, []);
+  }, [editor]);
 
   const handleDeleteDraft = useCallback((draftId) => {
     setDrafts((prev) => {
@@ -245,6 +234,32 @@ export default function ReportWriter() {
       setActiveDraftId(null);
     }
   }, [activeDraftId]);
+
+  const currentBlock = !editor
+    ? 'p'
+    : editor.isActive('heading', { level: 2 })
+    ? 'h2'
+    : editor.isActive('heading', { level: 3 })
+    ? 'h3'
+    : editor.isActive('heading', { level: 4 })
+    ? 'h4'
+    : editor.isActive('blockquote')
+    ? 'blockquote'
+    : 'p';
+
+  const handleBlockChange = (e) => {
+    if (!editor) return;
+    const value = e.target.value;
+    const chain = editor.chain().focus();
+    if (value === 'p') chain.setParagraph().run();
+    else if (value === 'blockquote') chain.toggleBlockquote().run();
+    else if (value.startsWith('h')) {
+      const level = Number(value.slice(1));
+      chain.setHeading({ level }).run();
+    }
+  };
+
+  const isActive = (name, attrs) => !!editor?.isActive(name, attrs);
 
   return (
     <div className="report-writer">
@@ -369,48 +384,79 @@ export default function ReportWriter() {
 
       {/* Editor Toolbar */}
       <div className="rw-toolbar">
-        <select className="rw-block-select" onChange={handleBlockFormat} defaultValue="p">
-          {BLOCK_FORMATS.map((fmt) => (
-            <option key={fmt.value} value={fmt.value}>
-              {fmt.label}
-            </option>
-          ))}
+        <select
+          className="rw-block-select"
+          value={currentBlock}
+          onChange={handleBlockChange}
+        >
+          <option value="p">Paragraph</option>
+          <option value="h2">Heading 2</option>
+          <option value="h3">Heading 3</option>
+          <option value="h4">Heading 4</option>
+          <option value="blockquote">Blockquote</option>
         </select>
 
         <div className="rw-toolbar-divider" />
 
-        {FORMATTING_BUTTONS.map((btn) => (
-          <button
-            key={btn.command}
-            className={`rw-toolbar-btn ${btn.className}`}
-            title={btn.title}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              execCommand(btn.command);
-            }}
-          >
-            {btn.icon}
-          </button>
-        ))}
+        <button
+          className={`rw-toolbar-btn fmt-bold${isActive('bold') ? ' is-active' : ''}`}
+          title="Bold"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            editor?.chain().focus().toggleBold().run();
+          }}
+        >
+          B
+        </button>
+        <button
+          className={`rw-toolbar-btn fmt-italic${isActive('italic') ? ' is-active' : ''}`}
+          title="Italic"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            editor?.chain().focus().toggleItalic().run();
+          }}
+        >
+          I
+        </button>
+        <button
+          className={`rw-toolbar-btn fmt-underline${isActive('underline') ? ' is-active' : ''}`}
+          title="Underline"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            editor?.chain().focus().toggleUnderline().run();
+          }}
+        >
+          U
+        </button>
+        <button
+          className={`rw-toolbar-btn fmt-strike${isActive('strike') ? ' is-active' : ''}`}
+          title="Strikethrough"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            editor?.chain().focus().toggleStrike().run();
+          }}
+        >
+          S
+        </button>
 
         <div className="rw-toolbar-divider" />
 
         <button
-          className="rw-toolbar-btn"
+          className={`rw-toolbar-btn${isActive('bulletList') ? ' is-active' : ''}`}
           title="Bulleted List"
           onMouseDown={(e) => {
             e.preventDefault();
-            execCommand('insertUnorderedList');
+            editor?.chain().focus().toggleBulletList().run();
           }}
         >
           &bull; List
         </button>
         <button
-          className="rw-toolbar-btn"
+          className={`rw-toolbar-btn${isActive('orderedList') ? ' is-active' : ''}`}
           title="Numbered List"
           onMouseDown={(e) => {
             e.preventDefault();
-            execCommand('insertOrderedList');
+            editor?.chain().focus().toggleOrderedList().run();
           }}
         >
           1. List
@@ -419,7 +465,7 @@ export default function ReportWriter() {
         <div className="rw-toolbar-divider" />
 
         <button
-          className="rw-toolbar-btn"
+          className={`rw-toolbar-btn${isActive('link') ? ' is-active' : ''}`}
           title="Insert Link"
           onMouseDown={(e) => {
             e.preventDefault();
@@ -431,13 +477,7 @@ export default function ReportWriter() {
       </div>
 
       {/* Content Editor */}
-      <div
-        ref={editorRef}
-        className="rw-editor"
-        contentEditable
-        suppressContentEditableWarning
-        data-placeholder="Start writing your report..."
-      />
+      <EditorContent editor={editor} className="rw-editor" />
 
       {/* Image Upload */}
       <div className="rw-images-section">

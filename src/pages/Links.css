@@ -12,11 +12,17 @@
   color: var(--text-primary);
 }
 
-/* Add link row */
+/* Add link */
 .links-add {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 24px;
+}
+
+.links-add-row {
+  display: flex;
+  gap: 10px;
 }
 
 .links-input {
@@ -57,6 +63,108 @@
   background: rgba(2, 116, 182, 0.15);
 }
 
+/* Tag chip area (reused in add form and edit form) */
+.links-tag-area {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 8px 12px;
+  min-height: 44px;
+  transition: border-color 0.2s;
+}
+
+.links-tag-area:focus-within {
+  border-color: var(--accent-blue);
+}
+
+.links-inline-input {
+  flex: 1;
+  min-width: 150px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.9em;
+  outline: none;
+}
+
+.links-inline-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+/* Chips */
+.links-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(2, 116, 182, 0.08);
+  color: var(--accent-blue);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78em;
+  padding: 4px 10px;
+  border-radius: 2px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.links-chip button {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 1.15em;
+  line-height: 1;
+  padding: 0;
+}
+
+.links-chip button:hover {
+  opacity: 1;
+}
+
+.links-chip-static {
+  background: rgba(2, 116, 182, 0.05);
+}
+
+.links-chip-filter {
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.links-chip-filter:hover {
+  border-color: var(--accent-blue);
+}
+
+.links-chip-filter.is-active {
+  background: var(--accent-blue);
+  color: var(--bg-card);
+}
+
+/* Filter bar */
+.links-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.links-search {
+  padding: 10px 14px;
+  font-size: 0.9em;
+}
+
+.links-tag-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 /* Link list */
 .links-list {
   list-style: none;
@@ -67,7 +175,7 @@
 
 .links-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   background: var(--bg-card);
@@ -81,24 +189,57 @@
   border-color: var(--accent-blue);
 }
 
-.links-url {
+.links-item-editing {
+  border-color: var(--accent-blue);
+}
+
+.links-item-main {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.links-primary {
+  display: block;
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.95em;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--accent-blue);
-  text-decoration: none;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.85em;
 }
 
-.links-url:hover {
+.links-primary:hover {
   text-decoration: underline;
 }
 
-.links-delete-btn {
+.links-url-sub {
+  color: var(--text-secondary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.links-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.links-item-actions {
   flex-shrink: 0;
+  display: flex;
+  gap: 4px;
+}
+
+.links-icon-btn {
   background: none;
   border: 1px solid transparent;
   border-radius: 2px;
@@ -109,9 +250,24 @@
   transition: color 0.2s, border-color 0.2s;
 }
 
+.links-icon-btn:hover {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
 .links-delete-btn:hover {
   color: var(--accent-red);
   border-color: var(--accent-red);
+}
+
+.links-save-btn:hover {
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.links-edit-title {
+  padding: 8px 12px;
+  font-size: 0.9em;
 }
 
 /* Empty state */

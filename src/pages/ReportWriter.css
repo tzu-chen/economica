@@ -365,6 +365,12 @@
   color: var(--text-primary);
 }
 
+.rw-toolbar-btn.is-active {
+  background: rgba(2, 116, 182, 0.08);
+  color: var(--accent-blue);
+  border-color: rgba(2, 116, 182, 0.2);
+}
+
 .fmt-bold {
   font-weight: 700;
 }
@@ -386,6 +392,14 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 0 0 2px 2px;
+  transition: border-color 0.2s;
+}
+
+.rw-editor:focus-within {
+  border-color: var(--accent-blue);
+}
+
+.rw-editor .ProseMirror {
   padding: 20px 24px;
   min-height: 320px;
   color: var(--text-primary);
@@ -393,18 +407,15 @@
   font-size: 1em;
   line-height: 1.7;
   outline: none;
-  transition: border-color 0.2s;
 }
 
-.rw-editor:focus {
-  border-color: var(--accent-blue);
-}
-
-.rw-editor:empty::before {
+.rw-editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   color: var(--text-secondary);
   opacity: 0.5;
   pointer-events: none;
+  float: left;
+  height: 0;
 }
 
 .rw-editor h2 {

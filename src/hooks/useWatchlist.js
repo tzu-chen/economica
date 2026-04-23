@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchTickerPrices } from '../services/marketData';
 
 const STORAGE_KEY = 'watchlist';
@@ -7,7 +7,11 @@ const POLL_INTERVAL = 60_000; // 60 seconds
 function loadWatchlist() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    return parsed.map((item) => ({
+      ...item,
+      group: item.group || '',
+    }));
   } catch {
     return [];
   }
@@ -18,20 +22,16 @@ function saveWatchlist(items) {
 }
 
 /**
- * Watchlist hook. Each item: { symbol, upperLimit, lowerLimit }.
- * Returns { items, prices, addSymbol, removeSymbol, updateLimits }.
- * prices is a Map<symbol, { price, changePercent }>.
+ * Watchlist hook. Each item: { symbol, upperLimit, lowerLimit, group }.
  */
 export default function useWatchlist() {
   const [items, setItems] = useState(loadWatchlist);
   const [prices, setPrices] = useState(new Map());
 
-  // Persist on change
   useEffect(() => {
     saveWatchlist(items);
   }, [items]);
 
-  // Fetch prices for all symbols
   const fetchPrices = useCallback(async () => {
     const symbols = items.map((i) => i.symbol);
     if (symbols.length === 0) {
@@ -57,7 +57,7 @@ export default function useWatchlist() {
     if (!upper) return;
     setItems((prev) => {
       if (prev.some((i) => i.symbol === upper)) return prev;
-      return [...prev, { symbol: upper, upperLimit: '', lowerLimit: '' }];
+      return [...prev, { symbol: upper, upperLimit: '', lowerLimit: '', group: '' }];
     });
   }, []);
 
@@ -73,5 +73,45 @@ export default function useWatchlist() {
     );
   }, []);
 
-  return { items, prices, addSymbol, removeSymbol, updateLimits };
+  const updateGroup = useCallback((symbol, groupName) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.symbol === symbol ? { ...i, group: groupName || '' } : i,
+      ),
+    );
+  }, []);
+
+  const renameGroup = useCallback((oldName, newName) => {
+    const trimmed = (newName || '').trim();
+    if (!trimmed || trimmed === oldName) return;
+    setItems((prev) =>
+      prev.map((i) => (i.group === oldName ? { ...i, group: trimmed } : i)),
+    );
+  }, []);
+
+  const removeGroup = useCallback((groupName) => {
+    setItems((prev) =>
+      prev.map((i) => (i.group === groupName ? { ...i, group: '' } : i)),
+    );
+  }, []);
+
+  const groups = useMemo(() => {
+    const set = new Set();
+    items.forEach((i) => {
+      if (i.group) set.add(i.group);
+    });
+    return [...set].sort();
+  }, [items]);
+
+  return {
+    items,
+    prices,
+    groups,
+    addSymbol,
+    removeSymbol,
+    updateLimits,
+    updateGroup,
+    renameGroup,
+    removeGroup,
+  };
 }
